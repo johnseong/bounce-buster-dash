@@ -5,6 +5,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TrendingDown, Clock, Users } from "lucide-react";
 
@@ -27,7 +28,10 @@ const Index = () => {
                 <h1 className="text-[15px] font-semibold text-foreground">Activity Dashboard</h1>
               </div>
             </div>
-            <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
+            </div>
           </header>
 
           {/* Content */}
