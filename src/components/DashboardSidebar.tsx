@@ -31,13 +31,13 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border px-3 py-4">
+      <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="h-7 w-7 shrink-0 rounded-lg bg-primary flex items-center justify-center">
+          <div className="h-8 w-8 shrink-0 rounded-xl bg-gradient-to-b from-primary to-primary/80 flex items-center justify-center shadow-apple-sm">
             <BarChart3 className="h-4 w-4 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <span className="font-semibold text-[13px] tracking-tight text-sidebar-foreground truncate">
+            <span className="font-semibold text-[14px] text-sidebar-foreground truncate">
               Bounce Analytics
             </span>
           )}
@@ -46,7 +46,9 @@ export function DashboardSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-widest font-semibold text-muted-foreground/60">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -59,8 +61,8 @@ export function DashboardSidebar() {
                     <NavLink
                       to={item.url}
                       end
-                      className="text-sidebar-foreground/70"
-                      activeClassName="!text-primary font-medium"
+                      className="text-muted-foreground rounded-xl"
+                      activeClassName="!text-foreground !font-medium"
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
@@ -73,14 +75,14 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <NavLink
                 to="/settings"
-                className="text-sidebar-foreground/70"
-                activeClassName="!text-primary font-medium"
+                className="text-muted-foreground rounded-xl"
+                activeClassName="!text-foreground !font-medium"
               >
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
@@ -88,13 +90,13 @@ export function DashboardSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={toggleSidebar} tooltip={collapsed ? "Expand" : "Collapse"}>
+            <SidebarMenuButton onClick={toggleSidebar} tooltip={collapsed ? "Expand" : "Collapse"} className="rounded-xl">
               {collapsed ? (
-                <ChevronsRight className="h-4 w-4" />
+                <ChevronsRight className="h-4 w-4 text-muted-foreground" />
               ) : (
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
               )}
-              <span>Collapse</span>
+              <span className="text-muted-foreground">Collapse</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

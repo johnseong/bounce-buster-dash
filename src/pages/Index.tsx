@@ -6,6 +6,7 @@ import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { TrendingDown, Clock, Users } from "lucide-react";
 
 const Index = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -18,25 +19,42 @@ const Index = () => {
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Sticky top bar */}
-          <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border h-14 px-6 flex items-center justify-between gap-4">
+          {/* Top bar */}
+          <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-xl border-b border-border/60 h-14 px-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <SidebarTrigger />
+              <SidebarTrigger className="text-muted-foreground" />
               <div>
-                <h1 className="text-sm font-semibold tracking-tight text-foreground">Activity Dashboard</h1>
-                <p className="text-[11px] text-muted-foreground leading-tight">Identify and fix your highest drop-off pages</p>
+                <h1 className="text-[15px] font-semibold text-foreground">Activity Dashboard</h1>
               </div>
             </div>
             <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
           </header>
 
           {/* Content */}
-          <div className="flex-1 p-6 space-y-5 bg-background">
-            {/* KPI row */}
+          <div className="flex-1 p-6 space-y-5">
+            {/* KPI cards */}
             <div className="grid grid-cols-3 gap-4">
-              <KPICard label="Bounce Rate" value="60%" change="-2.4%" positive />
-              <KPICard label="Avg. Session" value="1m 42s" change="+8s" positive />
-              <KPICard label="DAU" value="2,050" change="+12%" positive />
+              <KPICard
+                icon={<TrendingDown className="h-4 w-4" />}
+                label="Bounce Rate"
+                value="60%"
+                change="-2.4%"
+                positive
+              />
+              <KPICard
+                icon={<Clock className="h-4 w-4" />}
+                label="Avg. Session"
+                value="1m 42s"
+                change="+8s"
+                positive
+              />
+              <KPICard
+                icon={<Users className="h-4 w-4" />}
+                label="Daily Active Users"
+                value="2,050"
+                change="+12%"
+                positive
+              />
             </div>
             <DAUChart />
             <TopDropOffPages />
@@ -47,14 +65,33 @@ const Index = () => {
   );
 };
 
-function KPICard({ label, value, change, positive }: { label: string; value: string; change: string; positive: boolean }) {
+function KPICard({
+  icon,
+  label,
+  value,
+  change,
+  positive,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  change: string;
+  positive: boolean;
+}) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="text-2xl font-semibold text-foreground mt-1 tracking-tight">{value}</p>
-      <p className={`text-xs mt-1 font-medium ${positive ? "text-emerald-600" : "text-destructive"}`}>
-        {change} vs. prior period
-      </p>
+    <div className="apple-card p-5 flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+          {icon}
+        </div>
+        <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+      </div>
+      <div>
+        <p className="text-[28px] font-semibold text-foreground leading-none tracking-tight">{value}</p>
+        <p className={`text-[13px] mt-1.5 font-medium ${positive ? "text-emerald-500" : "text-destructive"}`}>
+          {change} <span className="text-muted-foreground font-normal">vs. prior period</span>
+        </p>
+      </div>
     </div>
   );
 }
