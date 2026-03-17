@@ -28,7 +28,10 @@ const Index = () => {
                 <h1 className="text-[15px] font-semibold text-foreground">Activity Dashboard</h1>
               </div>
             </div>
-            <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
+            </div>
           </header>
 
           {/* Content */}
