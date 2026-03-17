@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TrendingDown, Clock, Users } from "lucide-react";
 
 const Index = () => {
@@ -16,56 +14,34 @@ const Index = () => {
   });
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <DashboardSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Top bar */}
-          <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-xl border-b border-border/60 h-14 px-6 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-muted-foreground" />
-              <div>
-                <h1 className="text-[15px] font-semibold text-foreground">Activity Dashboard</h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
-            </div>
-          </header>
-
-          {/* Content */}
-          <div className="flex-1 p-6 space-y-5">
-            {/* KPI cards */}
-            <div className="grid grid-cols-3 gap-4">
-              <KPICard
-                icon={<TrendingDown className="h-4 w-4" />}
-                label="Bounce Rate"
-                value="60%"
-                change="-2.4%"
-                positive
-              />
-              <KPICard
-                icon={<Clock className="h-4 w-4" />}
-                label="Avg. Session"
-                value="1m 42s"
-                change="+8s"
-                positive
-              />
-              <KPICard
-                icon={<Users className="h-4 w-4" />}
-                label="Daily Active Users"
-                value="2,050"
-                change="+12%"
-                positive
-              />
-            </div>
-            <DAUChart />
-            <TopDropOffPages />
-          </div>
-        </div>
+    <DashboardLayout title="Activity Dashboard">
+      {/* KPI cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <KPICard
+          icon={<TrendingDown className="h-4 w-4" />}
+          label="Bounce Rate"
+          value="60%"
+          change="-2.4%"
+          positive
+        />
+        <KPICard
+          icon={<Clock className="h-4 w-4" />}
+          label="Avg. Session"
+          value="1m 42s"
+          change="+8s"
+          positive
+        />
+        <KPICard
+          icon={<Users className="h-4 w-4" />}
+          label="Daily Active Users"
+          value="2,050"
+          change="+12%"
+          positive
+        />
       </div>
-    </SidebarProvider>
+      <DAUChart />
+      <TopDropOffPages />
+    </DashboardLayout>
   );
 };
 
