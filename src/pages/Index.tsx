@@ -5,6 +5,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TrendingDown, Clock, Users } from "lucide-react";
 
