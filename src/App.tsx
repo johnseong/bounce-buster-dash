@@ -11,6 +11,8 @@ import Pages from "./pages/Pages.tsx";
 import Funnels from "./pages/Funnels.tsx";
 import Reports from "./pages/Reports.tsx";
 import Settings from "./pages/Settings.tsx";
+import InsightDetail from "./pages/InsightDetail.tsx";
+import ActionResult from "./pages/ActionResult.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
