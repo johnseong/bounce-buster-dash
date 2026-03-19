@@ -15,30 +15,30 @@ const pages = [
 export default function Pages() {
   return (
     <DashboardLayout title="Pages">
-      {/* Summary cards */}
+      <h2 className="text-[20px] font-bold text-foreground">Pages</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="apple-card p-5">
+        <div className="asana-card p-5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-medium">Total Pages</p>
-          <p className="text-[28px] font-semibold text-foreground mt-1">{pages.length}</p>
+          <p className="text-[26px] font-bold text-foreground mt-1">{pages.length}</p>
         </div>
-        <div className="apple-card p-5">
+        <div className="asana-card p-5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-medium">Total Views</p>
-          <p className="text-[28px] font-semibold text-foreground mt-1">{pages.reduce((s, p) => s + p.views, 0).toLocaleString()}</p>
+          <p className="text-[26px] font-bold text-foreground mt-1">{pages.reduce((s, p) => s + p.views, 0).toLocaleString()}</p>
         </div>
-        <div className="apple-card p-5">
+        <div className="asana-card p-5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-medium">Avg. Bounce Rate</p>
-          <p className="text-[28px] font-semibold text-foreground mt-1">{Math.round(pages.reduce((s, p) => s + p.bounceRate, 0) / pages.length)}%</p>
+          <p className="text-[26px] font-bold text-foreground mt-1">{Math.round(pages.reduce((s, p) => s + p.bounceRate, 0) / pages.length)}%</p>
         </div>
       </div>
 
-      {/* Pages table */}
-      <div className="apple-card overflow-hidden">
-        <div className="p-5 border-b border-border/60">
-          <h2 className="text-[15px] font-semibold text-foreground">All Pages</h2>
+      <div className="asana-card overflow-hidden">
+        <div className="p-5 border-b border-border">
+          <h3 className="text-[15px] font-semibold text-foreground">All Pages</h3>
         </div>
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-border/40 text-muted-foreground">
+            <tr className="border-b border-border text-muted-foreground">
               <th className="text-left font-medium px-5 py-3">Page</th>
               <th className="text-right font-medium px-5 py-3">Views</th>
               <th className="text-right font-medium px-5 py-3">Bounce Rate</th>
@@ -48,7 +48,7 @@ export default function Pages() {
           </thead>
           <tbody>
             {pages.map((page) => (
-              <tr key={page.path} className="border-b border-border/20 last:border-0 hover:bg-muted/30 transition-colors">
+              <tr key={page.path} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-2">
                     <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/50" />
@@ -60,14 +60,14 @@ export default function Pages() {
                 </td>
                 <td className="text-right px-5 py-3.5 text-muted-foreground">{page.views.toLocaleString()}</td>
                 <td className="text-right px-5 py-3.5">
-                  <span className={`font-medium ${page.bounceRate > 60 ? "text-destructive" : page.bounceRate > 45 ? "text-orange-500" : "text-emerald-500"}`}>
+                  <span className={`font-medium ${page.bounceRate > 60 ? "text-destructive" : page.bounceRate > 45 ? "text-chart-warning" : "text-chart-success"}`}>
                     {page.bounceRate}%
                   </span>
                 </td>
                 <td className="text-right px-5 py-3.5 text-muted-foreground">{page.avgTime}</td>
                 <td className="text-right px-5 py-3.5">
                   {page.trend === "up" ? (
-                    <ArrowUpRight className="h-4 w-4 text-emerald-500 ml-auto" />
+                    <ArrowUpRight className="h-4 w-4 text-chart-success ml-auto" />
                   ) : (
                     <ArrowDownRight className="h-4 w-4 text-destructive ml-auto" />
                   )}

@@ -27,44 +27,43 @@ const data = [
 
 export function DAUChart() {
   return (
-    <div className="apple-card p-6">
-      <div className="mb-5">
+    <div className="asana-card p-5">
+      <div className="mb-4">
         <h2 className="text-[15px] font-semibold text-foreground">Daily Active Users</h2>
-        <p className="text-[13px] text-muted-foreground mt-0.5">Engagement trend over the selected period</p>
+        <p className="text-[12px] text-muted-foreground mt-0.5">Last 14 days</p>
       </div>
-      <div className="h-[280px]">
+      <div className="h-[240px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="dauGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--chart-primary))" stopOpacity={0.1} />
+                <stop offset="0%" stopColor="hsl(var(--chart-primary))" stopOpacity={0.15} />
                 <stop offset="100%" stopColor="hsl(var(--chart-primary))" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="0" stroke="hsl(var(--border))" strokeOpacity={0.5} vertical={false} />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               dy={8}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",
-                border: "none",
-                borderRadius: "12px",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
                 fontSize: "13px",
                 fontWeight: 500,
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.12)",
-                padding: "8px 14px",
+                padding: "8px 12px",
               }}
-              cursor={{ stroke: "hsl(var(--border))", strokeDasharray: "4 4" }}
+              cursor={{ stroke: "hsl(var(--border))" }}
             />
             <Area
               type="monotone"

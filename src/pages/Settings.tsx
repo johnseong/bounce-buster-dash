@@ -9,25 +9,25 @@ import { Separator } from "@/components/ui/separator";
 export default function Settings() {
   return (
     <DashboardLayout title="Settings">
-      {/* Profile */}
-      <div className="apple-card p-6 space-y-5">
-        <h2 className="text-[15px] font-semibold text-foreground">Profile</h2>
+      <h2 className="text-[20px] font-bold text-foreground">Settings</h2>
+
+      <div className="asana-card p-6 space-y-5">
+        <h3 className="text-[15px] font-semibold text-foreground">Profile</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-[13px]">Display Name</Label>
-            <Input placeholder="Your name" className="rounded-xl" defaultValue="John Doe" />
+            <Input placeholder="Your name" className="rounded-lg" defaultValue="Alex" />
           </div>
           <div className="space-y-2">
             <Label className="text-[13px]">Email</Label>
-            <Input placeholder="you@example.com" className="rounded-xl" defaultValue="john@example.com" />
+            <Input placeholder="you@example.com" className="rounded-lg" defaultValue="alex@example.com" />
           </div>
         </div>
-        <Button size="sm" className="rounded-xl">Save Changes</Button>
+        <Button size="sm" className="rounded-lg">Save Changes</Button>
       </div>
 
-      {/* Appearance */}
-      <div className="apple-card p-6 space-y-5">
-        <h2 className="text-[15px] font-semibold text-foreground">Appearance</h2>
+      <div className="asana-card p-6 space-y-5">
+        <h3 className="text-[15px] font-semibold text-foreground">Appearance</h3>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[14px] font-medium text-foreground">Dark Mode</p>
@@ -37,9 +37,8 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Notifications */}
-      <div className="apple-card p-6 space-y-5">
-        <h2 className="text-[15px] font-semibold text-foreground">Notifications</h2>
+      <div className="asana-card p-6 space-y-5">
+        <h3 className="text-[15px] font-semibold text-foreground">Notifications</h3>
         <div className="space-y-4">
           {[
             { label: "Email Alerts", desc: "Receive alerts when bounce rate spikes" },
@@ -57,16 +56,15 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Danger zone */}
-      <div className="apple-card p-6 space-y-5">
-        <h2 className="text-[15px] font-semibold text-destructive">Danger Zone</h2>
+      <div className="asana-card p-6 space-y-5">
+        <h3 className="text-[15px] font-semibold text-destructive">Danger Zone</h3>
         <Separator />
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[14px] font-medium text-foreground">Delete Account</p>
             <p className="text-[13px] text-muted-foreground">Permanently remove your account and all data</p>
           </div>
-          <Button variant="destructive" size="sm" className="rounded-xl">Delete</Button>
+          <Button variant="destructive" size="sm" className="rounded-lg">Delete</Button>
         </div>
       </div>
     </DashboardLayout>

@@ -1,20 +1,32 @@
 import { useState } from "react";
-import { subDays } from "date-fns";
-import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
-import { TrendingDown, Clock, Users } from "lucide-react";
+import { TrendingDown, Clock, Users, CheckCircle2, Sparkles } from "lucide-react";
 
 const Index = () => {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 14),
-    to: new Date(),
-  });
+  const today = new Date();
+  const dayName = format(today, "EEEE, MMMM d");
 
   return (
-    <DashboardLayout title="Activity Dashboard">
+    <DashboardLayout title="Home">
+      {/* Hero greeting banner */}
+      <div className="hero-banner rounded-2xl p-8 text-foreground">
+        <p className="text-[13px] font-medium opacity-80">{dayName}</p>
+        <h1 className="text-[28px] font-bold mt-1">Good afternoon, Alex</h1>
+        <div className="flex items-center gap-6 mt-4 text-[13px] font-medium">
+          <div className="flex items-center gap-1.5 opacity-80">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>0 tasks completed</span>
+          </div>
+          <div className="flex items-center gap-1.5 opacity-80">
+            <Users className="h-4 w-4" />
+            <span>2 collaborators</span>
+          </div>
+        </div>
+      </div>
+
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-4">
         <KPICard
@@ -39,8 +51,12 @@ const Index = () => {
           positive
         />
       </div>
-      <DAUChart />
-      <TopDropOffPages />
+
+      {/* Two column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <DAUChart />
+        <TopDropOffPages />
+      </div>
     </DashboardLayout>
   );
 };
@@ -59,16 +75,16 @@ function KPICard({
   positive: boolean;
 }) {
   return (
-    <div className="apple-card p-5 flex flex-col gap-3">
+    <div className="asana-card p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+        <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center text-accent-foreground">
           {icon}
         </div>
         <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
       </div>
       <div>
-        <p className="text-[28px] font-semibold text-foreground leading-none tracking-tight">{value}</p>
-        <p className={`text-[13px] mt-1.5 font-medium ${positive ? "text-emerald-500" : "text-destructive"}`}>
+        <p className="text-[26px] font-bold text-foreground leading-none">{value}</p>
+        <p className={`text-[13px] mt-1.5 font-medium ${positive ? "text-chart-success" : "text-destructive"}`}>
           {change} <span className="text-muted-foreground font-normal">vs. prior period</span>
         </p>
       </div>
