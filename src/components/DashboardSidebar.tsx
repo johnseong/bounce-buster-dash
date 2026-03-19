@@ -36,7 +36,7 @@ export function DashboardSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-primary to-pink-500 flex items-center justify-center">
+          <div className="h-9 w-9 shrink-0 rounded-lg bg-primary flex items-center justify-center">
             <BarChart3 className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
           {!collapsed && (
