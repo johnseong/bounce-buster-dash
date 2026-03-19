@@ -32,6 +32,8 @@ const App = () => (
             <Route path="/funnels" element={<Funnels />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/insight/performance-drop" element={<InsightDetail />} />
+            <Route path="/insight/performance-drop/action" element={<ActionResult />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
