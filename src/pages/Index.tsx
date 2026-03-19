@@ -25,49 +25,37 @@ const Index = () => {
 
   return (
     <DashboardLayout title="Home">
-      {/* Hero greeting banner */}
-      <div className="hero-banner rounded-2xl p-8 text-foreground">
-        <p className="text-[13px] font-medium opacity-80">{dayName}</p>
-        <h1 className="text-[28px] font-bold mt-1">Good afternoon, Alex</h1>
-        <div className="flex items-center gap-6 mt-4 text-[13px] font-medium">
-          <div className="flex items-center gap-1.5 opacity-80">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>3 insights waiting</span>
-          </div>
-          <div className="flex items-center gap-1.5 opacity-80">
-            <Users className="h-4 w-4" />
-            <span>2,050 active users</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Primary Insight Card — the hero of this prototype */}
+      {/* Primary Insight — hero of the dashboard */}
       <div
         className="asana-card p-6 border-l-4 border-l-destructive cursor-pointer hover:shadow-md transition-shadow group"
         onClick={() => navigate("/insight/performance-drop")}
       >
         <div className="flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-            <TrendingDown className="h-6 w-6 text-destructive" />
+          <div className="h-14 w-14 rounded-xl bg-destructive/15 flex items-center justify-center shrink-0">
+            <TrendingDown className="h-7 w-7 text-destructive" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[11px] uppercase tracking-wider font-semibold text-destructive">Needs Attention</span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-destructive/10 text-[11px] uppercase tracking-wider font-bold text-destructive">
+                <AlertTriangle className="h-3 w-3" /> Critical
+              </span>
               <span className="text-[11px] text-muted-foreground">• 2 hours ago</span>
             </div>
-            <h2 className="text-[18px] font-bold text-foreground leading-snug">
-              Your performance dropped by 15% this week
+            <h2 className="text-[20px] font-bold text-foreground leading-snug">
+              Performance dropped 15% — mobile bounce rate surged to 72%
             </h2>
             <p className="text-[14px] text-muted-foreground mt-1.5 leading-relaxed">
-              Bounce rate increased from 52% to 60%, driven by mobile visitors. 
-              Your checkout funnel lost 740 more users than last week.
+              Mobile visitors leave after 48s on average. The checkout funnel lost 740 users at the "Add to Cart → Checkout" step, 
+              where conversion fell from 57% to 41%.
             </p>
-            <div className="flex items-center gap-2 mt-4">
-              <Button size="sm" className="rounded-lg text-[13px] h-8 gap-1.5 group-hover:gap-2.5 transition-all">
-                View Details
+            <div className="flex items-center gap-3 mt-4">
+              <Button size="sm" variant="destructive" className="rounded-lg text-[13px] h-9 gap-1.5 group-hover:gap-2.5 transition-all font-semibold">
+                Fix Checkout Drop-off
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
-              <span className="text-[12px] text-muted-foreground">Click to understand why and take action</span>
+              <Button size="sm" variant="outline" className="rounded-lg text-[13px] h-9 gap-1.5" onClick={(e) => { e.stopPropagation(); navigate("/insight/performance-drop"); }}>
+                Analyze Root Cause
+              </Button>
             </div>
           </div>
         </div>
@@ -76,7 +64,7 @@ const Index = () => {
       {/* Secondary insights row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
-          className="asana-card p-5 cursor-pointer hover:shadow-md transition-shadow group"
+          className="asana-card p-5 border-l-4 border-l-chart-warning cursor-pointer hover:shadow-md transition-shadow group"
           onClick={() => navigate("/insight/performance-drop")}
         >
           <div className="flex items-start gap-3">
@@ -84,12 +72,12 @@ const Index = () => {
               <AlertTriangle className="h-5 w-5 text-chart-warning" />
             </div>
             <div className="flex-1">
-              <p className="text-[13px] font-semibold text-foreground">Mobile users bounce 72% of the time</p>
+              <p className="text-[13px] font-bold text-foreground">Mobile landing page loads in 4.2s — 72% bounce</p>
               <p className="text-[12px] text-muted-foreground mt-1">
-                That's 23% higher than desktop. Your mobile landing page may need attention.
+                Slow load time on mobile is the #1 driver. Desktop loads in 1.8s with only 45% bounce.
               </p>
-              <div className="flex items-center gap-1 mt-2 text-primary text-[12px] font-medium group-hover:gap-2 transition-all">
-                <span>See breakdown</span>
+              <div className="flex items-center gap-1 mt-2.5 text-chart-warning text-[12px] font-semibold group-hover:gap-2 transition-all">
+                <span>Optimize Mobile Speed</span>
                 <ArrowRight className="h-3 w-3" />
               </div>
             </div>
@@ -97,7 +85,7 @@ const Index = () => {
         </div>
 
         <div
-          className="asana-card p-5 cursor-pointer hover:shadow-md transition-shadow group"
+          className="asana-card p-5 border-l-4 border-l-chart-success cursor-pointer hover:shadow-md transition-shadow group"
           onClick={() => navigate("/insight/performance-drop")}
         >
           <div className="flex items-start gap-3">
@@ -105,12 +93,12 @@ const Index = () => {
               <Zap className="h-5 w-5 text-chart-success" />
             </div>
             <div className="flex-1">
-              <p className="text-[13px] font-semibold text-foreground">You spent 25% more time on Docs this week</p>
+              <p className="text-[13px] font-bold text-foreground">Docs engagement up 25% — avg session 5m 44s</p>
               <p className="text-[12px] text-muted-foreground mt-1">
-                Documentation page sessions grew to 5m 44s avg. Users find it valuable.
+                Users who visit Docs convert 3× more. Consider promoting it in onboarding.
               </p>
-              <div className="flex items-center gap-1 mt-2 text-primary text-[12px] font-medium group-hover:gap-2 transition-all">
-                <span>See details</span>
+              <div className="flex items-center gap-1 mt-2.5 text-chart-success text-[12px] font-semibold group-hover:gap-2 transition-all">
+                <span>Leverage This Trend</span>
                 <ArrowRight className="h-3 w-3" />
               </div>
             </div>
