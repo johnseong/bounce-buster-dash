@@ -1,4 +1,4 @@
-import { BarChart3, LayoutDashboard, FileText, Settings, Users, TrendingDown, Globe, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileText, Settings, Users, TrendingDown, Globe, Target, Plus } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -15,17 +15,20 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Overview", url: "/" },
+const mainNav = [
+  { icon: LayoutDashboard, label: "Home", url: "/" },
   { icon: TrendingDown, label: "Drop-off Analysis", url: "/drop-off" },
   { icon: Users, label: "User Segments", url: "/segments" },
+];
+
+const analyticsNav = [
   { icon: Globe, label: "Pages", url: "/pages" },
-  { icon: BarChart3, label: "Funnels", url: "/funnels" },
+  { icon: Target, label: "Funnels", url: "/funnels" },
   { icon: FileText, label: "Reports", url: "/reports" },
 ];
 
 export function DashboardSidebar() {
-  const { state, toggleSidebar } = useSidebar();
+  const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
 
@@ -33,25 +36,25 @@ export function DashboardSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="h-8 w-8 shrink-0 rounded-xl bg-gradient-to-b from-primary to-primary/80 flex items-center justify-center shadow-apple-sm">
-            <BarChart3 className="h-4 w-4 text-primary-foreground" />
+          <div className="h-9 w-9 shrink-0 rounded-lg bg-primary flex items-center justify-center">
+            <BarChart3 className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <span className="font-semibold text-[14px] text-sidebar-foreground truncate">
-              Bounce Analytics
+            <span className="font-semibold text-[15px] text-foreground truncate">
+              Bounce
             </span>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] uppercase tracking-widest font-semibold text-muted-foreground/60">
-            Navigation
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground/70 px-3 mb-1">
+            Insights
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {mainNav.map((item) => (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     asChild
@@ -61,11 +64,40 @@ export function DashboardSidebar() {
                     <NavLink
                       to={item.url}
                       end
-                      className="text-muted-foreground rounded-xl"
-                      activeClassName="!text-foreground !font-medium"
+                      className="text-sidebar-foreground rounded-lg h-8"
+                      activeClassName="!bg-sidebar-accent !text-sidebar-accent-foreground !font-medium"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
+                      <span className="text-[13px]">{item.label}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground/70 px-3 mb-1">
+            Analytics
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {analyticsNav.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                    tooltip={item.label}
+                  >
+                    <NavLink
+                      to={item.url}
+                      end
+                      className="text-sidebar-foreground rounded-lg h-8"
+                      activeClassName="!bg-sidebar-accent !text-sidebar-accent-foreground !font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="text-[13px]">{item.label}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -81,22 +113,12 @@ export function DashboardSidebar() {
             <SidebarMenuButton asChild tooltip="Settings">
               <NavLink
                 to="/settings"
-                className="text-muted-foreground rounded-xl"
-                activeClassName="!text-foreground !font-medium"
+                className="text-sidebar-foreground rounded-lg h-8"
+                activeClassName="!bg-sidebar-accent !text-sidebar-accent-foreground !font-medium"
               >
                 <Settings className="h-4 w-4" />
-                <span>Settings</span>
+                <span className="text-[13px]">Settings</span>
               </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={toggleSidebar} tooltip={collapsed ? "Expand" : "Collapse"} className="rounded-xl">
-              {collapsed ? (
-                <ChevronsRight className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronsLeft className="h-4 w-4 text-muted-foreground" />
-              )}
-              <span className="text-muted-foreground">Collapse</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
