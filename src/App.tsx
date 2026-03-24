@@ -26,6 +26,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <PageTransitionLoader />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/drop-off" element={<DropOff />} />
