@@ -9,6 +9,7 @@ import DropOff from "./pages/DropOff.tsx";
 import Segments from "./pages/Segments.tsx";
 import Pages from "./pages/Pages.tsx";
 import Funnels from "./pages/Funnels.tsx";
+import FunnelDetail from "./pages/FunnelDetail.tsx";
 import Reports from "./pages/Reports.tsx";
 import Settings from "./pages/Settings.tsx";
 import InsightDetail from "./pages/InsightDetail.tsx";

@@ -1,5 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { ArrowRight, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, BarChart3, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const funnels = [
   {
