@@ -1,31 +1,55 @@
-import { useState } from "react";
-import { format } from "date-fns";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
+import { InsightCardSkeleton, KPICardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/CardSkeleton";
+import { CardEmptyState } from "@/components/CardEmptyState";
+import { CardErrorState } from "@/components/CardErrorState";
 import {
   TrendingDown,
   Clock,
   Users,
-  CheckCircle2,
   ArrowRight,
   AlertTriangle,
   Zap,
-  ArrowUpRight,
-  ArrowDownRight,
-  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const today = new Date();
-  const dayName = format(today, "EEEE, MMMM d");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [chartError, setChartError] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout title="Home">
+        <InsightCardSkeleton />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InsightCardSkeleton />
+          <InsightCardSkeleton />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <KPICardSkeleton />
+          <KPICardSkeleton />
+          <KPICardSkeleton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <ChartSkeleton />
+          <TableSkeleton />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Home">
-      {/* Primary Insight — hero of the dashboard */}
+      {/* Primary Insight */}
       <div
         className="asana-card p-6 border-l-4 border-l-destructive cursor-pointer hover:shadow-md transition-shadow group"
         onClick={() => navigate("/insight/performance-drop")}
@@ -61,7 +85,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Secondary insights row */}
+      {/* Secondary insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           className="asana-card p-5 border-l-4 border-l-chart-warning cursor-pointer hover:shadow-md transition-shadow group"
@@ -108,32 +132,18 @@ const Index = () => {
 
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-4">
-        <KPICard
-          icon={<TrendingDown className="h-4 w-4" />}
-          label="Bounce Rate"
-          value="60%"
-          change="-2.4%"
-          positive
-        />
-        <KPICard
-          icon={<Clock className="h-4 w-4" />}
-          label="Avg. Session"
-          value="1m 42s"
-          change="+8s"
-          positive
-        />
-        <KPICard
-          icon={<Users className="h-4 w-4" />}
-          label="Daily Active Users"
-          value="2,050"
-          change="+12%"
-          positive
-        />
+        <KPICard icon={<TrendingDown className="h-4 w-4" />} label="Bounce Rate" value="60%" change="-2.4%" positive />
+        <KPICard icon={<Clock className="h-4 w-4" />} label="Avg. Session" value="1m 42s" change="+8s" positive />
+        <KPICard icon={<Users className="h-4 w-4" />} label="Daily Active Users" value="2,050" change="+12%" positive />
       </div>
 
-      {/* Two column layout */}
+      {/* Charts + Table — one with error demo */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <DAUChart />
+        {chartError ? (
+          <CardErrorState onRetry={() => setChartError(false)} />
+        ) : (
+          <DAUChart />
+        )}
         <TopDropOffPages />
       </div>
     </DashboardLayout>
