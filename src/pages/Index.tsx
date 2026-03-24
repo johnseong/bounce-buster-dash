@@ -4,6 +4,9 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { DAUChart } from "@/components/DAUChart";
 import { TopDropOffPages } from "@/components/TopDropOffPages";
 import { InsightCardSkeleton, KPICardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/CardSkeleton";
+import { CardErrorState } from "@/components/CardErrorState";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { InsightCardSkeleton, KPICardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/CardSkeleton";
 import { CardEmptyState } from "@/components/CardEmptyState";
 import { CardErrorState } from "@/components/CardErrorState";
 import {
