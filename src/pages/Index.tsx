@@ -132,9 +132,9 @@ const Index = () => {
 
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-4">
-        <KPICard icon={<TrendingDown className="h-4 w-4" />} label="Bounce Rate" value="60%" change="-2.4%" positive />
-        <KPICard icon={<Clock className="h-4 w-4" />} label="Avg. Session" value="1m 42s" change="+8s" positive />
-        <KPICard icon={<Users className="h-4 w-4" />} label="Daily Active Users" value="2,050" change="+12%" positive />
+        <KPICard icon={<TrendingDown className="h-4 w-4" />} label="Bounce Rate" value="60%" change="-2.4%" status="green" sparkline={[68, 66, 65, 63, 64, 62, 60]} />
+        <KPICard icon={<Clock className="h-4 w-4" />} label="Avg. Session" value="1m 42s" change="+8s" status="green" sparkline={[82, 85, 88, 90, 94, 96, 102]} />
+        <KPICard icon={<Users className="h-4 w-4" />} label="Daily Active Users" value="2,050" change="+12%" status="green" sparkline={[1400, 1520, 1680, 1750, 1830, 1920, 2050]} />
       </div>
 
       {/* Charts + Table — one with error demo */}
@@ -150,32 +150,66 @@ const Index = () => {
   );
 };
 
+const statusColors = {
+  green: { dot: "bg-chart-success", text: "text-chart-success" },
+  yellow: { dot: "bg-chart-warning", text: "text-chart-warning" },
+  red: { dot: "bg-destructive", text: "text-destructive" },
+};
+
 function KPICard({
   icon,
   label,
   value,
   change,
-  positive,
+  status,
+  sparkline,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   change: string;
-  positive: boolean;
+  status: "green" | "yellow" | "red";
+  sparkline: number[];
 }) {
+  const colors = statusColors[status];
+  const chartData = sparkline.map((v, i) => ({ v }));
+
   return (
-    <div className="asana-card p-5 flex flex-col gap-3">
+    <div className="asana-card p-5 flex flex-col gap-3 relative overflow-hidden">
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center text-accent-foreground">
           {icon}
         </div>
         <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+        <span className={`ml-auto h-2 w-2 rounded-full ${colors.dot}`} />
       </div>
-      <div>
-        <p className="text-[26px] font-bold text-foreground leading-none">{value}</p>
-        <p className={`text-[13px] mt-1.5 font-medium ${positive ? "text-chart-success" : "text-destructive"}`}>
-          {change} <span className="text-muted-foreground font-normal">vs. prior period</span>
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-[26px] font-bold text-foreground leading-none">{value}</p>
+          <p className={`text-[13px] mt-1.5 font-medium ${colors.text}`}>
+            {change} <span className="text-muted-foreground font-normal">vs. prior period</span>
+          </p>
+        </div>
+        <div className="w-20 h-10 opacity-60">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={`spark-${label}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={`hsl(var(--${status === "green" ? "chart-success" : status === "yellow" ? "chart-warning" : "chart-alert"}))`} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={`hsl(var(--${status === "green" ? "chart-success" : status === "yellow" ? "chart-warning" : "chart-alert"}))`} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke={`hsl(var(--${status === "green" ? "chart-success" : status === "yellow" ? "chart-warning" : "chart-alert"}))`}
+                strokeWidth={1.5}
+                fill={`url(#spark-${label})`}
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
