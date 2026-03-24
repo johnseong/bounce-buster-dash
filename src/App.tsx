@@ -9,6 +9,7 @@ import DropOff from "./pages/DropOff.tsx";
 import Segments from "./pages/Segments.tsx";
 import Pages from "./pages/Pages.tsx";
 import Funnels from "./pages/Funnels.tsx";
+import FunnelDetail from "./pages/FunnelDetail.tsx";
 import Reports from "./pages/Reports.tsx";
 import Settings from "./pages/Settings.tsx";
 import InsightDetail from "./pages/InsightDetail.tsx";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/segments" element={<Segments />} />
             <Route path="/pages" element={<Pages />} />
             <Route path="/funnels" element={<Funnels />} />
+            <Route path="/funnels/detail" element={<FunnelDetail />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/insight/performance-drop" element={<InsightDetail />} />

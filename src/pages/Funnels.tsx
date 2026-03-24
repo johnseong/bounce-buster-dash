@@ -1,5 +1,6 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { ArrowRight, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, BarChart3, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const funnels = [
   {
@@ -32,13 +33,19 @@ const funnels = [
 ];
 
 export default function Funnels() {
+  const navigate = useNavigate();
+
   return (
     <DashboardLayout title="Funnels">
       <h2 className="text-[20px] font-bold text-foreground">Funnels</h2>
 
       <div className="space-y-5">
         {funnels.map((funnel) => (
-          <div key={funnel.name} className="asana-card p-6">
+          <div
+            key={funnel.name}
+            className="asana-card p-6 cursor-pointer hover:border-primary/30 transition-colors group"
+            onClick={() => navigate("/funnels/detail")}
+          >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-lg bg-accent flex items-center justify-center">
