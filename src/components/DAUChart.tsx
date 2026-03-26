@@ -28,9 +28,12 @@ const data = [
 export function DAUChart() {
   return (
     <div className="asana-card p-5">
-      <div className="mb-4">
-        <h2 className="text-[15px] font-semibold text-foreground">Daily Active Users</h2>
-        <p className="text-[12px] text-muted-foreground mt-0.5">Last 14 days</p>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Daily Active Users</h2>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Last 14 days</p>
+        </div>
+        <span className="text-[22px] font-bold text-foreground tracking-tight">2,050</span>
       </div>
       <div className="h-[240px]">
         <ResponsiveContainer width="100%" height="100%">

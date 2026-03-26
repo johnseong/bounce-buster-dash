@@ -34,13 +34,13 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-4">
+      <SidebarHeader className="px-3 py-5">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="h-9 w-9 shrink-0 rounded-lg bg-primary flex items-center justify-center">
-            <BarChart3 className="h-4.5 w-4.5 text-primary-foreground" />
+          <div className="h-8 w-8 shrink-0 rounded-lg bg-primary flex items-center justify-center">
+            <BarChart3 className="h-4 w-4 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <span className="font-semibold text-[15px] text-foreground truncate">
+            <span className="font-bold text-[16px] text-foreground tracking-tight truncate">
               Bounce
             </span>
           )}
