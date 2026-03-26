@@ -3,9 +3,10 @@
  * Groups links into "Insights" and "Analytics" sections with a settings footer.
  */
 
-import { BarChart3, LayoutDashboard, FileText, Settings, Users, TrendingDown, Globe, Target } from "lucide-react";
+import { BarChart3, LayoutDashboard, FileText, Settings, Users, TrendingDown, Globe, Target, LogOut } from "lucide-react";
 import { NavLink } from "@/components/layout/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -27,6 +28,7 @@ export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { signOut } = useAuth();
 
   const renderNavGroup = (items: typeof mainNav, groupLabel: string) => (
     <SidebarGroup>
@@ -72,6 +74,12 @@ export function DashboardSidebar() {
                 <Settings className="h-4 w-4" />
                 <span className="text-[13px]">Settings</span>
               </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Sign out" onClick={signOut} className="text-sidebar-foreground rounded-lg h-8 cursor-pointer hover:text-destructive">
+              <LogOut className="h-4 w-4" />
+              <span className="text-[13px]">Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

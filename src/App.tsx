@@ -21,6 +21,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageTransitionLoader } from "@/components/layout/PageTransitionLoader";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 
 /* Feature screens */
 import DashboardOverview from "@/features/dashboard/DashboardOverview";
@@ -33,32 +35,40 @@ import ReportsOverview from "@/features/reports/ReportsOverview";
 import SettingsPanel from "@/features/settings/SettingsPanel";
 import PerformanceInsight from "@/features/insights/PerformanceInsight";
 import InsightActionResult from "@/features/insights/InsightActionResult";
+import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const P = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>{children}</ProtectedRoute>
+);
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <PageTransitionLoader />
-          <Routes>
-            <Route path="/" element={<DashboardOverview />} />
-            <Route path="/drop-off" element={<DropOffAnalysis />} />
-            <Route path="/segments" element={<UserSegments />} />
-            <Route path="/pages" element={<PagePerformance />} />
-            <Route path="/funnels" element={<FunnelsList />} />
-            <Route path="/funnels/detail" element={<FunnelDetailAnalysis />} />
-            <Route path="/reports" element={<ReportsOverview />} />
-            <Route path="/settings" element={<SettingsPanel />} />
-            <Route path="/insight/performance-drop" element={<PerformanceInsight />} />
-            <Route path="/insight/performance-drop/action" element={<InsightActionResult />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <PageTransitionLoader />
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/" element={<P><DashboardOverview /></P>} />
+              <Route path="/drop-off" element={<P><DropOffAnalysis /></P>} />
+              <Route path="/segments" element={<P><UserSegments /></P>} />
+              <Route path="/pages" element={<P><PagePerformance /></P>} />
+              <Route path="/funnels" element={<P><FunnelsList /></P>} />
+              <Route path="/funnels/detail" element={<P><FunnelDetailAnalysis /></P>} />
+              <Route path="/reports" element={<P><ReportsOverview /></P>} />
+              <Route path="/settings" element={<P><SettingsPanel /></P>} />
+              <Route path="/insight/performance-drop" element={<P><PerformanceInsight /></P>} />
+              <Route path="/insight/performance-drop/action" element={<P><InsightActionResult /></P>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>
