@@ -62,6 +62,7 @@ export default {
         },
         chart: {
           primary: "hsl(var(--chart-primary))",
+          secondary: "hsl(var(--chart-secondary))",
           alert: "hsl(var(--chart-alert))",
           success: "hsl(var(--chart-success))",
           warning: "hsl(var(--chart-warning))",
