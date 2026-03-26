@@ -125,7 +125,7 @@
 
 @layer utilities {
   .asana-card {
-    @apply rounded-xl bg-card border border-border;
+    @apply rounded-xl bg-card border border-border shadow-sm;
   }
   .hero-banner {
     background: linear-gradient(135deg, hsl(var(--hero-gradient-start)), hsl(var(--hero-gradient-end)));

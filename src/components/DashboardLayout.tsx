@@ -16,10 +16,10 @@ export function DashboardLayout({ title, children, headerContent }: DashboardLay
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-10 bg-background border-b border-border h-12 px-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="text-muted-foreground" />
-              <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 w-64">
+          <header className="sticky top-0 z-10 bg-card border-b border-border h-14 px-5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+              <div className="flex items-center gap-2 bg-accent rounded-lg px-3 py-1.5 w-56">
                 <Search className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-[13px] text-muted-foreground">Search</span>
               </div>
@@ -27,8 +27,8 @@ export function DashboardLayout({ title, children, headerContent }: DashboardLay
             <div className="flex items-center gap-3">
               {headerContent}
               <ThemeToggle />
-              <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="text-[11px] font-semibold text-primary">A</span>
+              <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center">
+                <span className="text-[12px] font-semibold text-primary">A</span>
               </div>
             </div>
           </header>
