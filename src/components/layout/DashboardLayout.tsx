@@ -8,6 +8,7 @@ import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardLayoutProps {
   title: string;
@@ -16,6 +17,9 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ title, children, headerContent }: DashboardLayoutProps) {
+  const { user } = useAuth();
+  const initial = user?.email?.charAt(0).toUpperCase() || "?";
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -33,7 +37,7 @@ export function DashboardLayout({ title, children, headerContent }: DashboardLay
               {headerContent}
               <ThemeToggle />
               <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center">
-                <span className="text-[12px] font-semibold text-primary">A</span>
+                <span className="text-[12px] font-semibold text-primary">{initial}</span>
               </div>
             </div>
           </header>
