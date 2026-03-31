@@ -317,11 +317,149 @@ USING (public.has_role(auth.uid(), 'admin'));
 
 ---
 
+## Section 6: Edge Case Checklist
+
+- [ ] **Database connection failure** — Show `CardErrorState` with a retry button on every data-fetching card; never render a blank screen.
+- [ ] **Empty data / new user** — Show `CardEmptyState` with a contextual CTA (e.g. "Create your first funnel") instead of empty tables or charts.
+- [ ] **Form submission failure** — Display an inline error toast via Sonner; preserve all user-entered values in the form fields.
+- [ ] **Loading states** — Render skeleton screens (`CardSkeleton` variants) on every screen that fetches data, matching the loaded layout grid exactly.
+- [ ] **Session expiry** — Redirect to `/auth?expired=true` and show an info toast; distinguish from manual sign-out (no toast).
+- [ ] **Zero analytics events** — Dashboard KPI cards show "0" with a "No data yet" subtitle instead of `NaN` or broken charts.
+- [ ] **Funnel with no events** — Funnel detail page shows a zero-state bar chart with step labels but 0-height bars and a helper message.
+- [ ] **Invalid funnel/insight ID in URL** — Show a "Not found" message with a link back to the list page; don't crash the app.
+- [ ] **Concurrent tab sign-out** — If the user signs out in one tab, the other tab detects the `SIGNED_OUT` event and redirects to `/auth`.
+- [ ] **Large date range query** — Queries spanning 90+ days should paginate or aggregate server-side to avoid exceeding the 1000-row Supabase default limit.
+- [ ] **Duplicate segment/funnel names** — Show a validation error "A segment with this name already exists" before INSERT.
+- [ ] **Scheduled report with deleted parent** — If a `saved_report` is deleted, its `scheduled_report` should cascade-delete; UI should not show orphaned schedules.
+- [ ] **Profile update race condition** — Disable the "Save Changes" button during submission to prevent double-submit.
+- [ ] **Google OAuth popup blocked** — Show a fallback message: "Pop-up blocked. Please allow pop-ups for this site and try again."
+- [ ] **Network timeout on chart data** — React Query `retry: 2` with exponential backoff; after final failure, show `CardErrorState`.
+
+---
+
+## Section 7: Stress Test Plan
+
+### Test 1: "Offline Mid-Dashboard" — Connection Failure
+
+**Setup:** Log in and navigate to the Dashboard Overview so all data is loaded.
+
+**Steps:**
+1. Open browser DevTools → Network tab → set throttling to "Offline."
+2. Click the date range filter and select a new range (triggers a refetch).
+3. Observe all KPI cards, the DAU chart, and the drop-off table.
+
+**Expected behavior:**
+- Each card/chart transitions from its current state to `CardErrorState` with the message "Failed to load" and a visible "Retry" button.
+- No card renders blank or shows a JS error overlay.
+- Click "Retry" while still offline → error state persists (no crash).
+- Restore connectivity → click "Retry" → data reloads successfully.
+
+---
+
+### Test 2: "Fresh Signup, Zero Data" — Empty User Experience
+
+**Setup:** Use a brand-new email address that has never been used.
+
+**Steps:**
+1. Navigate to `/auth` and sign up with the new email + password.
+2. Verify email (or auto-confirm if enabled) and land on the dashboard.
+3. Visit every screen in order: Dashboard → Drop-off → Funnels → Funnel Detail (if any) → Pages → Segments → Reports → Insights → Settings.
+
+**Expected behavior:**
+- Dashboard: KPI cards show "0" values with a helpful subtitle ("No data yet — start tracking to see metrics"). DAU chart shows an empty-state message. Drop-off table shows `CardEmptyState`.
+- Funnels List: "You haven't created any funnels yet." with a "Create your first funnel" button.
+- Reports: "No reports generated yet." with a "Generate your first report" button.
+- Segments: "No user segments defined." with a "Create a segment" button.
+- Settings: Profile form is pre-filled with the user's email; display name field is empty and editable.
+- No screen shows a blank area, a broken chart, `NaN`, `undefined`, or a spinner that never resolves.
+
+---
+
+### Test 3: "Spam-Click Gauntlet" — Rapid Repeated Actions
+
+**Setup:** Log in with a seeded account that has existing funnels, reports, and segments.
+
+**Steps:**
+1. Go to Settings → rapidly click "Save Changes" 10 times in under 2 seconds.
+2. Go to Insight Action Result → rapidly click "Apply All Changes" 5 times.
+3. Go to Reports → rapidly click "Generate New" 5 times.
+4. Go to Funnels List → click "Create Funnel" and immediately click the browser back button, then forward button.
+
+**Expected behavior:**
+- Settings: Only one `profiles` UPDATE executes; the button is disabled with a spinner after the first click. No duplicate toasts.
+- Insight actions: Only one batch UPDATE fires; subsequent clicks are ignored while the mutation is in-flight. Success toast appears once.
+- Reports: Only one `saved_reports` INSERT executes; button shows a loading state. No duplicate reports appear in the list.
+- Funnel creation: Navigation is smooth; no half-created records are left in the database. The form either completes or is cleanly abandoned.
+
+---
+
+## Section 8: Handoff Note
+
+### What's Real vs. What's Mocked
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| User authentication (email + Google) | ✅ Real | Lovable Cloud auth with session management |
+| Profile creation on signup | ✅ Real | `profiles` table populated via `handle_new_user()` trigger |
+| Dashboard preferences storage | ✅ Real | `dashboard_preferences` table with RLS |
+| Saved funnels persistence | ✅ Real | `saved_funnels` table with RLS |
+| Saved reports persistence | ✅ Real | `saved_reports` table with RLS |
+| Dashboard KPI metrics | 🟡 Mocked | Hardcoded in `dashboardData.ts` — needs React Query hook |
+| Daily active users chart | 🟡 Mocked | Inline array in `DailyActiveUsersChart.tsx` |
+| Top drop-off pages | 🟡 Mocked | Inline array in `TopDropOffPages.tsx` |
+| Drop-off analysis | 🟡 Mocked | Hardcoded in `dropOffData.ts` |
+| Funnel detail metrics | 🟡 Mocked | Hardcoded in `funnelDetailData.ts` |
+| Page performance table | 🟡 Mocked | Hardcoded in `pagesData.ts` |
+| User segments & demographics | 🟡 Mocked | Hardcoded in `segmentsData.ts` |
+| Reports list & schedules | 🟡 Mocked | Hardcoded in `reportsData.ts` |
+| Insight detail & actions | 🟡 Mocked | Hardcoded in `insightData.ts` / `actionData.ts` |
+| Analytics event ingestion | ❌ Not built | No edge function or client-side tracker exists |
+| Admin roles & team management | ❌ Not built | `user_roles` table not yet created |
+
+### Database Schema Summary
+
+| Table | Purpose |
+|-------|---------|
+| `profiles` | User display name and avatar; auto-created on signup |
+| `dashboard_preferences` | Per-user layout, date range, and pinned metrics |
+| `saved_funnels` | User-defined conversion funnels with ordered steps |
+| `saved_reports` | Saved report configurations (type + filters) |
+| `analytics_events` | Raw event stream: pageviews, clicks, conversions |
+| `funnel_events` | Per-session step completion records for each funnel |
+| `page_analytics` | Pre-aggregated daily page-level metrics |
+| `insights` | AI-generated performance insights per user |
+| `insight_actions` | Recommended fixes tied to each insight |
+| `user_segments` | Named audience cohorts with filter rules |
+| `scheduled_reports` | Cron-style schedules linked to saved reports |
+
+### Auth & RLS Model
+
+- **Authentication:** Email/password + Google OAuth via Lovable Cloud
+- **Default role:** Every user sees only their own data (`auth.uid() = user_id`)
+- **RLS enabled:** All 11 tables have row-level security active
+- **Analytics ingestion:** `analytics_events`, `funnel_events`, `page_analytics` allow INSERT via service role for server-side data collection
+- **Cross-table checks:** `owns_funnel()` and `owns_insight()` security-definer functions prevent RLS recursion on `funnel_events` and `insight_actions`
+
+### Edge Cases Handled
+
+> _To be filled after edge-case hardening is complete._
+
+### Known Gaps
+
+> _To be filled after stress testing is complete._
+
+### Live URL
+
+> _To be filled after deployment._
+
+---
+
 ## Summary
 
 - **12 screens** are implemented, all using **100% hardcoded mock data**
-- **4 database tables** exist but only `profiles` is written to (via trigger) — the UI never queries any table
+- **11 database tables** exist (4 original + 7 new) — only `profiles` is written to via trigger; the UI never queries the new tables yet
 - **~40+ hardcoded values** need to be replaced with real queries
-- **7 new tables** are proposed to fully replace all mock data
 - **Auth is live** but only one role exists — admin/viewer roles should be added when team features are built
-- **RLS is correctly configured** on existing tables; new tables need per-user isolation with service-role ingestion for analytics data
+- **RLS is correctly configured** on all tables with per-user isolation and service-role ingestion for analytics data
+- **15 edge cases** identified; none yet handled in UI code
+- **3 stress tests** defined for connection failure, empty-user experience, and rapid-action resilience
