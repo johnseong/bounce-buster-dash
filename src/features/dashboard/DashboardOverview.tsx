@@ -55,8 +55,11 @@ const DashboardOverview = () => {
   return (
     <DashboardLayout title="Home">
       {/* KPI Metric Bar */}
+      {metricsError ? (
+        <CardErrorState title="Metrics unavailable" message="Could not load dashboard metrics." onRetry={() => retryMetrics()} />
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {dashboardMetrics.map((m) => (
+        {(dashboardMetrics ?? []).map((m) => (
           <MetricCard key={m.label} {...m} />
         ))}
       </div>
