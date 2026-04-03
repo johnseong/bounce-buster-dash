@@ -129,11 +129,7 @@ const DashboardOverview = () => {
 
       {/* Charts + Table */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {chartError ? (
-          <CardErrorState onRetry={() => setChartError(false)} />
-        ) : (
-          <DailyActiveUsersChart />
-        )}
+        <DailyActiveUsersChart />
         <TopDropOffPages />
       </div>
     </DashboardLayout>
