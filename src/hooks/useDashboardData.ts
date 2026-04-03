@@ -25,6 +25,39 @@ interface DropOffPage {
   sessions: number;
 }
 
+interface AnalyticsMetricRow {
+  session_id: string;
+  duration_ms: number | null;
+  event_type: string;
+}
+
+async function fetchAnalyticsMetricRows(start: string, end?: string): Promise<AnalyticsMetricRow[]> {
+  const pageSize = 1000;
+  const rows: AnalyticsMetricRow[] = [];
+
+  for (let from = 0; ; from += pageSize) {
+    const baseQuery = supabase
+      .from("analytics_events")
+      .select("session_id, duration_ms, event_type")
+      .gte("created_at", start)
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    const { data, error } = end
+      ? await baseQuery.lt("created_at", end)
+      : await baseQuery;
+
+    if (error) throw error;
+    if (!data?.length) break;
+
+    rows.push(...data);
+    if (data.length < pageSize) break;
+  }
+
+  return rows;
+}
+
 /** Fetch KPI summary metrics from analytics_events for last 14 days. */
 export function useDashboardMetrics() {
   return useQuery({
@@ -36,31 +69,21 @@ export function useDashboardMetrics() {
       const twentyEightDaysAgo = new Date(now);
       twentyEightDaysAgo.setDate(now.getDate() - 28);
 
-      // Current period
-      const { data: current, error: e1 } = await supabase
-        .from("analytics_events")
-        .select("session_id, duration_ms, event_type, device_type")
-        .gte("created_at", fourteenDaysAgo.toISOString());
-      if (e1) throw e1;
+      const [current, previous] = await Promise.all([
+        fetchAnalyticsMetricRows(fourteenDaysAgo.toISOString()),
+        fetchAnalyticsMetricRows(twentyEightDaysAgo.toISOString(), fourteenDaysAgo.toISOString()),
+      ]);
 
-      // Previous period for comparison
-      const { data: previous, error: e2 } = await supabase
-        .from("analytics_events")
-        .select("session_id, duration_ms, event_type, device_type")
-        .gte("created_at", twentyEightDaysAgo.toISOString())
-        .lt("created_at", fourteenDaysAgo.toISOString());
-      if (e2) throw e2;
-
-      const calc = (rows: typeof current) => {
-        if (!rows || rows.length === 0) return { sessions: 0, bounceRate: 0, avgSession: 0, conversionRate: 0 };
+      const calc = (rows: AnalyticsMetricRow[]) => {
+        if (rows.length === 0) return { sessions: 0, bounceRate: 0, avgSession: 0, conversionRate: 0 };
         const sessionIds = new Set(rows.map((r) => r.session_id));
         const sessions = sessionIds.size;
         const bounces = rows.filter((r) => (r.duration_ms ?? 0) < 60000).length;
-        const bounceRate = rows.length > 0 ? (bounces / rows.length) * 100 : 0;
-        const totalDur = rows.reduce((s, r) => s + (r.duration_ms ?? 0), 0);
-        const avgSession = rows.length > 0 ? totalDur / rows.length : 0;
+        const bounceRate = (bounces / rows.length) * 100;
+        const totalDur = rows.reduce((sum, row) => sum + (row.duration_ms ?? 0), 0);
+        const avgSession = totalDur / rows.length;
         const conversions = rows.filter((r) => r.event_type === "conversion").length;
-        const conversionRate = rows.length > 0 ? (conversions / rows.length) * 100 : 0;
+        const conversionRate = (conversions / rows.length) * 100;
         return { sessions, bounceRate, avgSession, conversionRate };
       };
 
