@@ -1,8 +1,8 @@
 # Bounce — Product Requirements Document (Living PRD)
 
-> **Version:** 1.0  
-> **Date:** March 26, 2026  
-> **Status:** Prototype (static mock data)  
+> **Version:** 1.1  
+> **Date:** April 3, 2026  
+> **Status:** Hybrid — Dashboard Overview live on seeded DB; other screens static mock  
 > **Stakeholders:** Product, Growth, Engineering
 
 ---
@@ -59,16 +59,17 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 
 **Purpose:** Answer *"Is my performance good or bad?"* in under 10 seconds.
 
-| Section | What it shows |
-|---------|--------------|
-| KPI Metric Bar (4 cards) | Total Sessions, Bounce Rate, Avg. Session Duration, Conversion Rate — each with trend indicator |
-| Primary Insight Card | The single most critical issue (e.g., "Performance dropped 15%"), with severity badge, root cause summary, and action CTAs |
-| Secondary Insight Cards (×2) | Supporting insights: one warning (mobile speed), one opportunity (docs engagement) |
-| Daily Active Users Chart | 14-day area chart showing DAU trend |
-| Top Drop-off Pages | Ranked list of pages with highest bounce rates |
+| Section | What it shows | Data source |
+|---------|--------------|-------------|
+| KPI Metric Bar (4 cards) | Total Sessions, Bounce Rate, Avg. Session Duration, Conversion Rate — each with trend indicator | ✅ Live DB (`analytics_events`) |
+| Primary Insight Card | The single most critical issue (e.g., "Performance dropped 15%"), with severity badge, root cause summary, and action CTAs | ⚠️ Partially static |
+| Secondary Insight Cards (×2) | Supporting insights: one warning (mobile speed), one opportunity (docs engagement) | ⚠️ Static mock |
+| Daily Active Users Chart | 14-day area chart showing DAU trend | ✅ Live DB (`analytics_events`) |
+| Top Drop-off Pages | Ranked list of pages with highest bounce rates | ✅ Live DB (`page_analytics`) |
 
 **Loading state:** Skeleton screens for all sections  
-**Error state:** Retry-able error card for chart failures
+**Error state:** Retry-able error card for chart failures  
+**Empty state:** Helpful message with call-to-action
 
 ### 4.2 Insight Detail (`/insight/performance-drop`)
 
@@ -80,6 +81,8 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 | Bounce Rate Comparison Chart | This week vs. last week bar chart, showing the increase day-by-day |
 | Root Cause Analysis | Three contributor cards (mobile bounce surge, checkout funnel loss, desktop steady) with severity indicators |
 | Recommended Actions | Numbered, prioritised list with projected impact and "Fix Now" / "View" CTAs |
+
+**Data source:** Static mock (`insightData.ts`)
 
 ### 4.3 Action Result (`/insight/performance-drop/action`)
 
@@ -93,6 +96,8 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 | Apply Button | Triggers a 2-second simulated application with progress bar |
 | Success State | Confirmation with applied changes list, projected metrics, and "What's Next" guidance |
 
+**Data source:** Static mock (`actionData.ts`)
+
 ### 4.4 Drop-off Analysis (`/drop-off`)
 
 **Purpose:** Visualise where users abandon the e-commerce conversion funnel.
@@ -101,6 +106,8 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 - Horizontal funnel bar chart with progressive visitor loss
 - Step-by-step breakdown table (visitors, drop-off count, retention rate)
 
+**Data source:** Static mock (`dropOffData.ts`) — future: `funnel_events` table
+
 ### 4.5 User Segments (`/segments`)
 
 **Purpose:** Compare engagement metrics across audience cohorts.
@@ -108,12 +115,16 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 - Segment cards (Power Users, Mobile Visitors, Desktop, International, Returning) with bounce rate and avg. session
 - Age demographics horizontal bar chart
 
+**Data source:** Static mock (`segmentsData.ts`) — future: `user_segments` table
+
 ### 4.6 Funnels List (`/funnels`)
 
 **Purpose:** Browse all tracked conversion funnels at a glance.
 
 - Funnel cards with mini bar chart previews, conversion rate, and trend indicator
 - Click-through to Funnel Detail
+
+**Data source:** Static mock (`funnelsData.ts`) — future: `saved_funnels` table
 
 ### 4.7 Funnel Detail Analysis (`/funnels/detail`)
 
@@ -125,12 +136,16 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 - Segment breakdown table (traffic source × funnel step)
 - AI-generated recommended actions with severity badges and projected impact
 
+**Data source:** Static mock (`funnelDetailData.ts`) — future: `funnel_events` + `saved_funnels`
+
 ### 4.8 Page Performance (`/pages`)
 
 **Purpose:** Identify which pages perform well and which need attention.
 
 - Summary KPIs (total pages, total views, avg. bounce rate)
 - Full page table with colour-coded bounce rates and trend arrows
+
+**Data source:** Static mock (`pagesData.ts`) — future: `page_analytics` table (already seeded)
 
 ### 4.9 Reports (`/reports`)
 
@@ -140,9 +155,13 @@ The core differentiator is the **Insight → Analysis → Action** loop: the pro
 - Recent reports table with type badges and download actions
 - Scheduled reports list with next-run dates
 
+**Data source:** Static mock (`reportsData.ts`) — future: `saved_reports` + `scheduled_reports`
+
 ### 4.10 Settings (`/settings`)
 
 **Purpose:** Manage profile, appearance (dark mode), notification preferences, and account.
+
+**Data source:** Theme persisted via `next-themes`; other settings partially static
 
 ### 4.11 Not Found (`/*`)
 
@@ -226,74 +245,77 @@ The prototype tests one primary flow — the **Insight → Analysis → Action**
 
 ---
 
-## 8. Mock Data vs. Real Backend Requirements
+## 8. Data Architecture
 
-### Currently Mocked (Static Constants)
+### Current state: Mock → Live migration
 
-| Data | Location | What It Represents |
-|------|----------|--------------------|
-| KPI metrics (sessions, bounce, conversion) | `features/dashboard/data/dashboardData.ts` | Aggregated analytics for current period |
-| Primary & secondary insights | `features/dashboard/data/dashboardData.ts` | AI-generated insight summaries |
-| DAU time series (14 days) | `components/charts/DailyActiveUsersChart.tsx` | Daily active user counts |
-| Top drop-off pages | `components/charts/TopDropOffPages.tsx` | Pages ranked by bounce rate |
-| Drop-off funnel steps | `features/drop-off/data/dropOffData.ts` | E-commerce funnel visitor counts |
-| User segments & demographics | `features/segments/data/segmentsData.ts` | Cohort-level engagement metrics |
-| Funnel definitions & steps | `features/funnels/data/funnelsData.ts` | Multiple funnel configurations |
-| Funnel detail (steps, segments, recommendations) | `features/funnels/data/funnelDetailData.ts` | Per-funnel deep-dive data |
-| Page performance metrics | `features/pages-analytics/data/pagesData.ts` | Per-page views, bounce, trends |
-| Reports list & schedules | `features/reports/data/reportsData.ts` | Report metadata |
-| Insight detail (weekly comparison, causes, recommendations) | `features/insights/data/insightData.ts` | Root-cause analysis data |
-| Action steps & projected impact | `features/insights/data/actionData.ts` | Fix descriptions and projections |
-| User profile (name, email) | `features/settings/SettingsPanel.tsx` | Inline defaults |
+The project has evolved through three stages:
 
-### Required for Production
+| Stage | Description | Status |
+|-------|-------------|--------|
+| **Stage 1: Static Prototype** | All data from `features/*/data/*.ts` files | ✅ Complete (legacy) |
+| **Stage 2: Seeded Database** | Sample data in Supabase tables, React Query hooks, Dashboard Overview live | ✅ Current |
+| **Stage 3: Production Pipeline** | External analytics ingestion → DB → aggregation → all UI screens | 🔜 Future |
 
-| Capability | Purpose | Suggested Approach |
-|------------|---------|-------------------|
-| **Analytics data ingestion** | Ingest page views, sessions, events from customer's product | SDK (JS snippet) + event pipeline (e.g., Segment, PostHog, or custom) |
-| **Funnel computation engine** | Calculate conversion rates, drop-off by step, segment breakdowns | Backend service with time-windowed aggregation |
-| **Insight generation** | Detect anomalies, rank by severity, generate natural-language summaries | Anomaly detection model + LLM for copy generation |
-| **Action execution** | Apply recommended fixes (e.g., toggle feature flags, update page config) | Integration with customer's deployment pipeline or feature flag service |
-| **User authentication** | Login, teams, roles | Auth provider (Lovable Cloud / Supabase Auth) |
-| **Persistent storage** | User preferences, saved reports, notification settings | PostgreSQL via Lovable Cloud |
-| **Report generation** | Scheduled PDF/email reports | Background job + email service |
-| **Real-time alerts** | Spike detection, threshold-based notifications | WebSocket or push notification service |
+### Database tables and current usage
+
+| Table | Purpose | Seeded? | Queried by UI? |
+|-------|---------|---------|----------------|
+| `analytics_events` | Raw events (sessions, bounces, conversions, pageviews) | ✅ Yes | ✅ Dashboard KPIs + DAU |
+| `page_analytics` | Aggregated per-page metrics | ✅ Yes | ✅ Top Drop-off Pages |
+| `insights` | AI-generated insight cards | ✅ Partially | ⚠️ Not yet wired |
+| `insight_actions` | Recommended actions per insight | Schema only | ❌ Mock data |
+| `funnel_events` | Step-level funnel tracking | Schema only | ❌ Mock data |
+| `saved_funnels` | User-defined funnel definitions | Schema only | ❌ Mock data |
+| `user_segments` | Cohort/segment definitions | Schema only | ❌ Mock data |
+| `saved_reports` | Generated report configurations | Schema only | ❌ Mock data |
+| `scheduled_reports` | Report scheduling metadata | Schema only | ❌ Mock data |
+| `profiles` | User profile data | Via auth | ✅ Auth flow |
+| `dashboard_preferences` | Per-user layout/date-range prefs | Schema only | ⚠️ Limited |
+
+### Static data files still in use
+
+| File | Used by | Migration target |
+|------|---------|-----------------|
+| `features/dashboard/data/dashboardData.ts` | Insight cards (partially) | `insights` table |
+| `features/drop-off/data/dropOffData.ts` | Drop-off Analysis screen | `funnel_events` |
+| `features/segments/data/segmentsData.ts` | User Segments screen | `user_segments` |
+| `features/funnels/data/funnelsData.ts` | Funnels List screen | `saved_funnels` |
+| `features/funnels/data/funnelDetailData.ts` | Funnel Detail screen | `funnel_events` + `saved_funnels` |
+| `features/pages-analytics/data/pagesData.ts` | Page Performance screen | `page_analytics` |
+| `features/reports/data/reportsData.ts` | Reports screen | `saved_reports` + `scheduled_reports` |
+| `features/insights/data/insightData.ts` | Insight Detail screen | `insights` |
+| `features/insights/data/actionData.ts` | Action Result screen | `insight_actions` |
 
 ---
 
-## 9. Technical Architecture Overview
+## 9. Technical Architecture
 
-### Current State (Prototype)
+### Current State (Hybrid: seeded DB + static mock)
 
 ```
-┌──────────────────────────────────────────────────┐
-│                   Client (SPA)                   │
-│                                                  │
-│  React 18 + TypeScript + Vite                    │
-│  ┌──────────────┐  ┌──────────────────────────┐  │
-│  │  App.tsx      │  │  features/               │  │
-│  │  (Router)     │  │    dashboard/            │  │
-│  │               │  │    drop-off/             │  │
-│  │  11 routes    │  │    segments/             │  │
-│  │               │  │    funnels/              │  │
-│  │               │  │    pages-analytics/      │  │
-│  │               │  │    reports/              │  │
-│  │               │  │    insights/             │  │
-│  │               │  │    settings/             │  │
-│  └──────────────┘  └──────────────────────────┘  │
-│  ┌──────────────────────────────────────────────┐│
-│  │  components/                                 ││
-│  │    layout/   (shell, sidebar, nav)           ││
-│  │    charts/   (DAU chart, drop-off list)      ││
-│  │    feedback/ (skeletons, error, empty)       ││
-│  │    filters/  (date range)                    ││
-│  │    theme/    (dark mode toggle)              ││
-│  │    ui/       (shadcn primitives)             ││
-│  └──────────────────────────────────────────────┘│
-│                                                  │
-│  Static mock data in features/*/data/*.ts        │
-│  No API calls · No authentication · No database  │
-└──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                     Client (SPA)                         │
+│                                                          │
+│  React 18 + TypeScript + Vite                            │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐   │
+│  │  Dashboard Overview                               │   │
+│  │  KPI cards ──── React Query ──── Supabase DB      │   │
+│  │  DAU chart ──── React Query ──── Supabase DB      │   │
+│  │  Drop-offs ──── React Query ──── Supabase DB      │   │
+│  │  Insights  ──── static data/*.ts (partially)      │   │
+│  └────────────────────────────────────────────────────┘   │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐   │
+│  │  All Other Screens                                │   │
+│  │  Drop-off / Segments / Funnels / Pages / Reports  │   │
+│  │  ──── static features/*/data/*.ts                 │   │
+│  └────────────────────────────────────────────────────┘   │
+│                                                          │
+│  Auth: Lovable Cloud / Supabase Auth                     │
+│  RLS: auth.uid() = user_id on all tables                 │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ### Target State (Production)
@@ -323,31 +345,82 @@ The prototype tests one primary flow — the **Insight → Analysis → Action**
 |---------|---------|
 | React 18 | UI framework |
 | React Router 6 | Client-side routing |
+| React Query | Server-state management and caching |
 | Recharts | Charts and data visualisation |
 | Tailwind CSS | Styling with semantic design tokens |
 | shadcn/ui (Radix) | Accessible component primitives |
-| React Query | Data fetching (ready but unused in prototype) |
 | next-themes | Light/dark mode |
 | date-fns | Date manipulation (date range filter) |
+| Supabase JS | Database client (auto-configured by Lovable Cloud) |
 
 ---
 
-## 10. Recommended Next Steps
+## 10. Module 5 Implementation Update
 
-### Phase 1 — Validate Prototype (Weeks 1–2)
+### What was delivered
 
-- [ ] **Usability testing** — Run 5–8 moderated sessions with target users on the current prototype
-- [ ] **Measure baseline** — Track insight CTR, time-to-first-click, and completion of the 3-screen flow
-- [ ] **Iterate on copy** — Refine insight headlines and CTA labels based on user feedback
-- [ ] **Mobile responsiveness** — Test and fix layouts on 375px–768px viewports
+- ✅ Seeded sample analytics data inserted into `analytics_events`
+- ✅ Seeded page-level data inserted into `page_analytics`
+- ✅ React Query hooks created (`useDashboardData.ts`) for all dashboard metrics
+- ✅ Daily Active Users chart connected to live database queries
+- ✅ Top Drop-off Pages connected to live database queries
+- ✅ Dashboard KPI cards (Total Sessions, Bounce Rate, Avg Duration, Conversion Rate) render from DB
+- ✅ Dashboard metrics update dynamically when new database records are inserted
+- ✅ Query logic updated to use aggregate functions after row-limit issue was discovered
+- ✅ Loading, empty, and error states added to all dashboard data components
 
-### Phase 2 — Backend Foundation (Weeks 3–6)
+### Key files changed
 
-- [ ] **Enable Lovable Cloud** — Set up authentication, database, and edge functions
-- [ ] **User auth** — Implement sign-up/login flow with team support
-- [ ] **Analytics data model** — Design schema for events, sessions, pages, funnels
-- [ ] **API endpoints** — Replace static data files with React Query hooks fetching from edge functions
-- [ ] **Date range filtering** — Wire the existing DateRangeFilter component to query parameters
+| File | Change |
+|------|--------|
+| `src/hooks/useDashboardData.ts` | New React Query hooks for all dashboard metrics |
+| `src/features/dashboard/DashboardOverview.tsx` | Wired to live queries instead of static imports |
+| `src/components/charts/DailyActiveUsersChart.tsx` | Connected to DB via React Query |
+| `src/components/charts/TopDropOffPages.tsx` | Connected to DB via React Query |
+| `src/features/dashboard/components/MetricCard.tsx` | Added loading/error/empty states |
+| `src/components/feedback/CardSkeleton.tsx` | Skeleton loading component |
+| `src/components/feedback/CardEmptyState.tsx` | Empty state component |
+| `src/components/feedback/CardErrorState.tsx` | Error state with retry button |
+
+### Issues discovered and resolved
+
+| Issue | Resolution |
+|-------|-----------|
+| Supabase default 1000-row limit hid new records | Switched to aggregate queries (`COUNT`, `AVG`) instead of fetching all rows |
+| Partial migration confusion | Documented clearly which screens are live vs. static |
+
+### Remaining work
+
+- [ ] Connect `insights` table to dashboard insight cards
+- [ ] Connect `funnel_events` to Drop-off Analysis and Funnel Detail screens
+- [ ] Connect `user_segments` to User Segments screen
+- [ ] Connect `page_analytics` to Page Performance table (full table view)
+- [ ] Connect `saved_reports` / `scheduled_reports` to Reports screen
+- [ ] Connect `dashboard_preferences` to Settings persistence
+- [ ] Build ingestion API (Edge Function) for external analytics data
+- [ ] Add date-range filtering to all database queries
+- [ ] Implement data aggregation layer for production-scale queries
+
+---
+
+## 11. Recommended Next Steps
+
+### Phase 1 — Validate Prototype (Weeks 1–2) ✅ Complete
+
+- [x] Usability testing — Run 5–8 moderated sessions with target users on the current prototype
+- [x] Measure baseline — Track insight CTR, time-to-first-click, and completion of the 3-screen flow
+- [x] Iterate on copy — Refine insight headlines and CTA labels based on user feedback
+- [x] Mobile responsiveness — Test and fix layouts on 375px–768px viewports
+
+### Phase 2 — Backend Foundation (Weeks 3–6) ✅ In Progress
+
+- [x] **Enable Lovable Cloud** — Authentication, database, and RLS provisioned
+- [x] **User auth** — Sign-up/login flow connected
+- [x] **Analytics data model** — Schema designed and provisioned (11 tables)
+- [x] **Seed data** — Sample records inserted into `analytics_events` and `page_analytics`
+- [x] **Dashboard Overview wired** — KPI cards, DAU chart, Top Drop-off Pages live
+- [ ] **Wire remaining screens** — Migrate static data to DB queries screen by screen
+- [ ] **Date range filtering** — Wire DateRangeFilter component to query parameters
 
 ### Phase 3 — Data Pipeline (Weeks 5–8)
 
