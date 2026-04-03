@@ -45,8 +45,8 @@ const DashboardOverview = () => {
           <InsightCardSkeleton />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ChartSkeleton />
-          <TableSkeleton />
+          <InsightCardSkeleton />
+          <InsightCardSkeleton />
         </div>
       </DashboardLayout>
     );
