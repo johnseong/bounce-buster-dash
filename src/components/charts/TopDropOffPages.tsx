@@ -1,19 +1,21 @@
 /**
  * TopDropOffPages — Ranked list of pages with the highest bounce rates.
- * Displays colour-coded progress bars for quick visual scanning.
+ * Now powered by live database queries via useTopDropOffPages hook.
  */
 
 import { ChevronRight } from "lucide-react";
-
-const dropOffPages = [
-  { path: "/pricing", bounceRate: 78, sessions: 3420 },
-  { path: "/signup", bounceRate: 72, sessions: 2890 },
-  { path: "/onboarding/step-2", bounceRate: 65, sessions: 2140 },
-  { path: "/features", bounceRate: 58, sessions: 4210 },
-  { path: "/docs/getting-started", bounceRate: 52, sessions: 1870 },
-];
+import { useTopDropOffPages } from "@/hooks/useDashboardData";
+import { TableSkeleton } from "@/components/feedback/CardSkeleton";
+import { CardErrorState } from "@/components/feedback/CardErrorState";
+import { CardEmptyState } from "@/components/feedback/CardEmptyState";
 
 export function TopDropOffPages() {
+  const { data: dropOffPages, isLoading, isError, refetch } = useTopDropOffPages();
+
+  if (isLoading) return <TableSkeleton />;
+  if (isError) return <CardErrorState title="Drop-off data failed" onRetry={() => refetch()} />;
+  if (!dropOffPages || dropOffPages.length === 0) return <CardEmptyState title="No page data yet" message="Page analytics will appear once traffic is recorded." />;
+
   return (
     <div className="asana-card overflow-hidden">
       <div className="p-5 pb-3">
