@@ -11,29 +11,23 @@
  * State: `loading` simulates an API fetch delay; `chartError` toggles error UI.
  */
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DailyActiveUsersChart } from "@/components/charts/DailyActiveUsersChart";
 import { TopDropOffPages } from "@/components/charts/TopDropOffPages";
-import { InsightCardSkeleton, KPICardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/feedback/CardSkeleton";
+import { InsightCardSkeleton, KPICardSkeleton } from "@/components/feedback/CardSkeleton";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 import { MetricCard } from "./components/MetricCard";
-import { dashboardMetrics, primaryInsight, secondaryInsights } from "./data/dashboardData";
+import { useDashboardMetrics } from "@/hooks/useDashboardData";
+import { primaryInsight, secondaryInsights } from "./data/dashboardData";
 import {
-  TrendingDown, ArrowRight, AlertTriangle, Zap, Eye,
+  TrendingDown, ArrowRight, AlertTriangle, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [chartError, setChartError] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: dashboardMetrics, isLoading: loading, isError: metricsError, refetch: retryMetrics } = useDashboardMetrics();
 
   /* ---------- Loading skeleton ---------- */
   if (loading) {
