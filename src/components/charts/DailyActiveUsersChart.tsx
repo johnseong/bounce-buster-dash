@@ -1,19 +1,23 @@
 /**
  * DailyActiveUsersChart — Area chart showing DAU over the last 14 days.
- * Renamed from DAUChart for clarity.
+ * Now powered by live database queries via useDailyActiveUsers hook.
  */
 
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
-
-const data = [
-  { date: "Mar 1", dau: 1240 }, { date: "Mar 2", dau: 1380 }, { date: "Mar 3", dau: 1190 },
-  { date: "Mar 4", dau: 1420 }, { date: "Mar 5", dau: 1560 }, { date: "Mar 6", dau: 1340 },
-  { date: "Mar 7", dau: 1680 }, { date: "Mar 8", dau: 1520 }, { date: "Mar 9", dau: 1750 },
-  { date: "Mar 10", dau: 1630 }, { date: "Mar 11", dau: 1890 }, { date: "Mar 12", dau: 1710 },
-  { date: "Mar 13", dau: 1980 }, { date: "Mar 14", dau: 2050 },
-];
+import { useDailyActiveUsers } from "@/hooks/useDashboardData";
+import { ChartSkeleton } from "@/components/feedback/CardSkeleton";
+import { CardErrorState } from "@/components/feedback/CardErrorState";
+import { CardEmptyState } from "@/components/feedback/CardEmptyState";
 
 export function DailyActiveUsersChart() {
+  const { data, isLoading, isError, refetch } = useDailyActiveUsers();
+
+  if (isLoading) return <ChartSkeleton />;
+  if (isError) return <CardErrorState title="DAU chart failed" onRetry={() => refetch()} />;
+  if (!data || data.length === 0) return <CardEmptyState title="No activity yet" message="Session data will appear here once analytics events are recorded." />;
+
+  const latestDAU = data[data.length - 1]?.dau ?? 0;
+
   return (
     <div className="asana-card p-5">
       <div className="flex items-center justify-between mb-4">
@@ -21,7 +25,7 @@ export function DailyActiveUsersChart() {
           <h2 className="text-sm font-semibold text-foreground">Daily Active Users</h2>
           <p className="text-[12px] text-muted-foreground mt-0.5">Last 14 days</p>
         </div>
-        <span className="text-[22px] font-bold text-foreground tracking-tight">2,050</span>
+        <span className="text-[22px] font-bold text-foreground tracking-tight">{latestDAU.toLocaleString()}</span>
       </div>
       <div className="h-[240px]">
         <ResponsiveContainer width="100%" height="100%">

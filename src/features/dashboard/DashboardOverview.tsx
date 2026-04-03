@@ -11,29 +11,23 @@
  * State: `loading` simulates an API fetch delay; `chartError` toggles error UI.
  */
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DailyActiveUsersChart } from "@/components/charts/DailyActiveUsersChart";
 import { TopDropOffPages } from "@/components/charts/TopDropOffPages";
-import { InsightCardSkeleton, KPICardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/feedback/CardSkeleton";
+import { InsightCardSkeleton, KPICardSkeleton } from "@/components/feedback/CardSkeleton";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 import { MetricCard } from "./components/MetricCard";
-import { dashboardMetrics, primaryInsight, secondaryInsights } from "./data/dashboardData";
+import { useDashboardMetrics } from "@/hooks/useDashboardData";
+import { primaryInsight, secondaryInsights } from "./data/dashboardData";
 import {
-  TrendingDown, ArrowRight, AlertTriangle, Zap, Eye,
+  TrendingDown, ArrowRight, AlertTriangle, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [chartError, setChartError] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: dashboardMetrics, isLoading: loading, isError: metricsError, refetch: retryMetrics } = useDashboardMetrics();
 
   /* ---------- Loading skeleton ---------- */
   if (loading) {
@@ -51,8 +45,8 @@ const DashboardOverview = () => {
           <InsightCardSkeleton />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ChartSkeleton />
-          <TableSkeleton />
+          <InsightCardSkeleton />
+          <InsightCardSkeleton />
         </div>
       </DashboardLayout>
     );
@@ -61,11 +55,15 @@ const DashboardOverview = () => {
   return (
     <DashboardLayout title="Home">
       {/* KPI Metric Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {dashboardMetrics.map((m) => (
-          <MetricCard key={m.label} {...m} />
-        ))}
-      </div>
+      {metricsError ? (
+        <CardErrorState title="Metrics unavailable" message="Could not load dashboard metrics." onRetry={() => retryMetrics()} />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {(dashboardMetrics ?? []).map((m) => (
+            <MetricCard key={m.label} {...m} />
+          ))}
+        </div>
+      )}
 
       {/* Primary Insight — critical alert */}
       <div
@@ -132,11 +130,7 @@ const DashboardOverview = () => {
 
       {/* Charts + Table */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {chartError ? (
-          <CardErrorState onRetry={() => setChartError(false)} />
-        ) : (
-          <DailyActiveUsersChart />
-        )}
+        <DailyActiveUsersChart />
         <TopDropOffPages />
       </div>
     </DashboardLayout>
