@@ -86,7 +86,7 @@ export default function DropOffAnalysis() {
         ) : isError ? (
           <CardErrorState message="Failed to load funnel data" />
         ) : funnelSteps.length === 0 ? (
-          <CardEmptyState message="No funnel data available" icon={BarChart3} />
+          <CardEmptyState message="No funnel data available" />
         ) : (
           <div className="space-y-1">
             {funnelSteps.map((step, i) => {
