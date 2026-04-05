@@ -47,10 +47,10 @@ The current implementation uses **database-backed seed data** for key dashboard 
 
 | # | Feature | Route | Status |
 |---|---------|-------|--------|
-| 1 | Dashboard Overview (KPIs, insights, DAU chart) | `/` | **Partially live:** KPI cards, DAU, and Top Drop-off Pages use DB queries; insight cards still partially static |
+| 1 | Dashboard Overview (KPIs, insights, DAU chart) | `/` | **Live:** KPI cards, DAU, Top Drop-off Pages, and Insight cards all use DB queries |
 | 2 | Insight Detail (root-cause analysis, recommendations) | `/insight/performance-drop` | UI complete, mostly mock/static |
 | 3 | Action Result (apply fix, projected impact) | `/insight/performance-drop/action` | UI complete, mock/static |
-| 4 | Drop-off Analysis (funnel visualisation) | `/drop-off` | UI complete, mock/static |
+| 4 | Drop-off Analysis (funnel visualisation) | `/drop-off` | **Live:** funnel steps and insights computed from `funnel_events` DB queries |
 | 5 | User Segments (cohort cards, demographics) | `/segments` | UI complete, mock/static |
 | 6 | Funnels List (all tracked funnels) | `/funnels` | UI complete, mock/static |
 | 7 | Funnel Detail (step chart, segment table, AI recs) | `/funnels/detail` | UI complete, mock/static |
@@ -123,13 +123,12 @@ Real user events will be ingested via an API endpoint, stored in the same table 
 | Table | Purpose | Current state |
 |-------|---------|---------------|
 | `analytics_events` | Raw event data (sessions, pageviews, bounces, conversions) | **Seeded & queried** — powers KPI metrics and DAU chart |
-| `page_analytics` | Aggregated per-page performance metrics | **Seeded & queried** — powers Top Drop-off Pages |
-| `insights` | AI-generated insight cards | Schema ready, partially seeded; future dashboard insight cards |
+| `page_analytics` | Aggregated per-page performance metrics | **Seeded & queried** — powers Top Drop-off Pages and Page Performance |
+| `insights` | AI-generated insight cards | **Seeded & queried** — powers Dashboard Overview insight cards |
 | `insight_actions` | Recommended actions per insight | Schema ready, not yet queried by UI |
-| `funnel_events` | Step-level funnel tracking data | Schema ready; future drop-off analysis |
-| `saved_funnels` | User-defined funnel definitions | Schema ready, mock data in UI |
+| `funnel_events` | Step-level funnel tracking data | **Seeded & queried** — powers Drop-off Analysis screen |
+| `saved_funnels` | User-defined funnel definitions | **Seeded** — referenced by funnel_events; UI still mock |
 | `user_segments` | Cohort/segment definitions | Schema ready, mock data in UI |
-| `page_analytics` | Per-page metrics (views, bounce, duration) | **Seeded & queried** |
 | `saved_reports` | Generated report configurations | Schema ready, mock data in UI |
 | `scheduled_reports` | Report scheduling metadata | Schema ready, mock data in UI |
 | `profiles` | User profile data | Schema ready, used by auth |
@@ -143,6 +142,8 @@ Real user events will be ingested via an API endpoint, stored in the same table 
 - **Conversion Rate:** `COUNT(event_type = 'conversion') / COUNT(DISTINCT session_id)` from `analytics_events`
 - **Daily Active Users:** `COUNT(DISTINCT session_id) GROUP BY date` from `analytics_events`
 - **Top Drop-off Pages:** aggregated from `page_analytics` ordered by `bounce_count DESC`
+- **Insight Cards:** top 10 from `insights` ordered by `created_at DESC`, mapped by `severity`
+- **Drop-off Funnel Steps:** `COUNT(DISTINCT session_id) GROUP BY step_index` from `funnel_events`
 
 ---
 
@@ -181,13 +182,21 @@ Real user events will be ingested via an API endpoint, stored in the same table 
 - ✅ Dashboard metrics update dynamically when new database records are inserted
 - ✅ Query logic updated to use aggregate functions after row-limit issue was discovered and resolved
 - ✅ Loading, empty, and error states added to all dashboard data components
+- ✅ Insight cards on Dashboard Overview connected to `insights` table via `useInsights` hook
+- ✅ 3 sample insight records seeded (critical, warning, success severities)
+- ✅ Drop-off Analysis screen connected to `funnel_events` table via `useDropOffData` hook
+- ✅ ~2,659 funnel event records seeded across a 5-step E-Commerce Purchase Flow
+- ✅ Demo-friendly RLS read policies added to `insights`, `funnel_events`, and `saved_funnels`
 
 ### Key files changed
 
 | File | Change |
 |------|--------|
-| `src/hooks/useDashboardData.ts` | New React Query hooks for all dashboard metrics |
-| `src/features/dashboard/DashboardOverview.tsx` | Wired to live queries instead of static imports |
+| `src/hooks/useDashboardData.ts` | React Query hooks for all dashboard metrics |
+| `src/hooks/useInsights.ts` | React Query hook for insight cards from `insights` table |
+| `src/hooks/useDropOffData.ts` | React Query hook for drop-off funnel from `funnel_events` |
+| `src/features/dashboard/DashboardOverview.tsx` | Wired to live queries (KPIs + insights) |
+| `src/features/drop-off/DropOffAnalysis.tsx` | Wired to live funnel queries |
 | `src/components/charts/DailyActiveUsersChart.tsx` | Connected to DB via React Query |
 | `src/components/charts/TopDropOffPages.tsx` | Connected to DB via React Query |
 | `src/features/dashboard/components/MetricCard.tsx` | Added loading/error/empty states |
@@ -197,8 +206,9 @@ Real user events will be ingested via an API endpoint, stored in the same table 
 
 ### Remaining work
 
-- [ ] Connect `insights` table to dashboard insight cards
-- [ ] Connect `funnel_events` to Drop-off Analysis and Funnel Detail screens
+- [x] Connect `insights` table to dashboard insight cards
+- [x] Connect `funnel_events` to Drop-off Analysis screen
+- [ ] Connect `funnel_events` to Funnel Detail screen
 - [ ] Connect `user_segments` to User Segments screen
 - [ ] Connect `page_analytics` to Page Performance table
 - [ ] Connect `saved_reports` / `scheduled_reports` to Reports screen
