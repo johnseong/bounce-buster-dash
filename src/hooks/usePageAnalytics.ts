@@ -1,13 +1,16 @@
 /**
  * usePageAnalytics — fetches aggregated per-page metrics from page_analytics.
+ * Accepts an optional date range for filtering.
  *
  * Fields used: page_path, page_title, views, bounce_count, unique_visitors, total_duration_ms, date
- * Aggregates across all dates to produce per-page totals, then derives bounce rate and avg time.
+ * Aggregates across selected dates to produce per-page totals, then derives bounce rate and avg time.
  * Trend is computed by comparing the latest half of dates to the earlier half.
  */
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { subDays, startOfDay, format } from "date-fns";
+import type { DateRangeParam } from "./useDashboardData";
 
 export interface PageRow {
   path: string;
@@ -18,11 +21,15 @@ export interface PageRow {
   trend: "up" | "down";
 }
 
-export function usePageAnalytics() {
+export function usePageAnalytics(range?: DateRangeParam) {
+  const r = range ?? { from: subDays(new Date(), 14), to: new Date() };
+  const fromDate = format(startOfDay(r.from), "yyyy-MM-dd");
+  const toDate = format(r.to, "yyyy-MM-dd");
+
   return useQuery({
-    queryKey: ["page-analytics-pages"],
+    queryKey: ["page-analytics-pages", fromDate, toDate],
     queryFn: async (): Promise<PageRow[]> => {
-      // Fetch all rows (paginated to bypass 1k limit)
+      // Fetch rows (paginated to bypass 1k limit)
       let allRows: any[] = [];
       let from = 0;
       const PAGE = 1000;
@@ -30,6 +37,8 @@ export function usePageAnalytics() {
         const { data, error } = await supabase
           .from("page_analytics")
           .select("page_path, page_title, views, bounce_count, total_duration_ms, date")
+          .gte("date", fromDate)
+          .lte("date", toDate)
           .order("date", { ascending: true })
           .range(from, from + PAGE - 1);
         if (error) throw error;
@@ -66,7 +75,7 @@ export function usePageAnalytics() {
         entry.views += r.views;
         entry.bounceCount += r.bounce_count;
         entry.totalDurMs += Number(r.total_duration_ms);
-        entry.totalRows += r.views; // use views as weight for avg
+        entry.totalRows += r.views;
         if (earlyDates.has(r.date)) {
           entry.earlyViews += r.views;
         } else {

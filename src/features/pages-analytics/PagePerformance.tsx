@@ -1,21 +1,36 @@
 /**
  * PagePerformance — Lists all tracked pages with views, bounce rate, and trend.
- * Now powered by live data from page_analytics table.
+ * Powered by live data from page_analytics table with date range filtering.
  */
 
+import { useState } from "react";
+import { subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ExternalLink, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { type DateRangeParam } from "@/hooks/useDashboardData";
+import { DateRangeFilter } from "@/components/filters/DateRangeFilter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardEmptyState } from "@/components/feedback/CardEmptyState";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 
 export default function PagePerformance() {
-  const { data: pages, isLoading, isError } = usePageAnalytics();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 14),
+    to: new Date(),
+  });
+
+  const hookRange: DateRangeParam | undefined =
+    dateRange?.from && dateRange?.to
+      ? { from: dateRange.from, to: dateRange.to }
+      : undefined;
+
+  const { data: pages, isLoading, isError } = usePageAnalytics(hookRange);
 
   if (isError) {
     return (
-      <DashboardLayout title="Pages">
+      <DashboardLayout title="Pages" headerContent={<DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />}>
         <CardErrorState title="Failed to load pages" message="Could not fetch page analytics data. Please try again later." />
       </DashboardLayout>
     );
@@ -25,7 +40,7 @@ export default function PagePerformance() {
   const avgBounce = pages && pages.length > 0 ? Math.round(pages.reduce((s, p) => s + p.bounceRate, 0) / pages.length) : 0;
 
   return (
-    <DashboardLayout title="Pages">
+    <DashboardLayout title="Pages" headerContent={<DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />}>
       <h2 className="text-[20px] font-bold text-foreground">Pages</h2>
 
       {/* KPI cards */}

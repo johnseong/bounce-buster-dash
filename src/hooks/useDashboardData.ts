@@ -1,10 +1,17 @@
 /**
  * React Query hooks for Dashboard Overview data.
  * Queries: analytics_events, page_analytics tables.
+ * All hooks accept an optional date range for filtering.
  */
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { subDays, startOfDay, endOfDay, format } from "date-fns";
+
+export interface DateRangeParam {
+  from: Date;
+  to: Date;
+}
 
 export interface DashboardMetric {
   label: string;
@@ -31,26 +38,26 @@ interface AnalyticsMetricRow {
   event_type: string;
 }
 
-async function fetchAnalyticsMetricRows(start: string, end?: string): Promise<AnalyticsMetricRow[]> {
+function getDefaultRange(): DateRangeParam {
+  return { from: subDays(new Date(), 14), to: new Date() };
+}
+
+async function fetchAnalyticsMetricRows(start: string, end: string): Promise<AnalyticsMetricRow[]> {
   const pageSize = 1000;
   const rows: AnalyticsMetricRow[] = [];
 
   for (let from = 0; ; from += pageSize) {
-    const baseQuery = supabase
+    const { data, error } = await supabase
       .from("analytics_events")
       .select("session_id, duration_ms, event_type")
       .gte("created_at", start)
+      .lte("created_at", end)
       .order("created_at", { ascending: true })
       .order("id", { ascending: true })
       .range(from, from + pageSize - 1);
 
-    const { data, error } = end
-      ? await baseQuery.lt("created_at", end)
-      : await baseQuery;
-
     if (error) throw error;
     if (!data?.length) break;
-
     rows.push(...data);
     if (data.length < pageSize) break;
   }
@@ -58,20 +65,22 @@ async function fetchAnalyticsMetricRows(start: string, end?: string): Promise<An
   return rows;
 }
 
-/** Fetch KPI summary metrics from analytics_events for last 14 days. */
-export function useDashboardMetrics() {
-  return useQuery({
-    queryKey: ["dashboard-metrics"],
-    queryFn: async (): Promise<DashboardMetric[]> => {
-      const now = new Date();
-      const fourteenDaysAgo = new Date(now);
-      fourteenDaysAgo.setDate(now.getDate() - 14);
-      const twentyEightDaysAgo = new Date(now);
-      twentyEightDaysAgo.setDate(now.getDate() - 28);
+/** Fetch KPI summary metrics from analytics_events for the selected date range. */
+export function useDashboardMetrics(range?: DateRangeParam) {
+  const r = range ?? getDefaultRange();
+  const fromISO = startOfDay(r.from).toISOString();
+  const toISO = endOfDay(r.to).toISOString();
+  const daysSpan = Math.max(1, Math.round((r.to.getTime() - r.from.getTime()) / 86_400_000));
+  const prevFrom = subDays(r.from, daysSpan);
+  const prevFromISO = startOfDay(prevFrom).toISOString();
+  const prevToISO = startOfDay(r.from).toISOString();
 
+  return useQuery({
+    queryKey: ["dashboard-metrics", fromISO, toISO],
+    queryFn: async (): Promise<DashboardMetric[]> => {
       const [current, previous] = await Promise.all([
-        fetchAnalyticsMetricRows(fourteenDaysAgo.toISOString()),
-        fetchAnalyticsMetricRows(twentyEightDaysAgo.toISOString(), fourteenDaysAgo.toISOString()),
+        fetchAnalyticsMetricRows(fromISO, toISO),
+        fetchAnalyticsMetricRows(prevFromISO, prevToISO),
       ]);
 
       const calc = (rows: AnalyticsMetricRow[]) => {
@@ -135,18 +144,21 @@ export function useDashboardMetrics() {
   });
 }
 
-/** Fetch Daily Active Users for the last 14 days from analytics_events. */
-export function useDailyActiveUsers() {
-  return useQuery({
-    queryKey: ["dashboard-dau"],
-    queryFn: async (): Promise<DAUPoint[]> => {
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 15);
+/** Fetch Daily Active Users for the selected date range from analytics_events. */
+export function useDailyActiveUsers(range?: DateRangeParam) {
+  const r = range ?? getDefaultRange();
+  const fromISO = startOfDay(r.from).toISOString();
+  const toISO = endOfDay(r.to).toISOString();
+  const daysSpan = Math.max(1, Math.round((r.to.getTime() - r.from.getTime()) / 86_400_000));
 
+  return useQuery({
+    queryKey: ["dashboard-dau", fromISO, toISO],
+    queryFn: async (): Promise<DAUPoint[]> => {
       const { data, error } = await supabase
         .from("analytics_events")
         .select("session_id, created_at")
-        .gte("created_at", fourteenDaysAgo.toISOString());
+        .gte("created_at", fromISO)
+        .lte("created_at", toISO);
       if (error) throw error;
 
       // Group unique sessions by date
@@ -157,11 +169,10 @@ export function useDailyActiveUsers() {
         byDate[d].add(row.session_id);
       });
 
-      // Build ordered array for last 14 days
+      // Build ordered array for each day in range
       const result: DAUPoint[] = [];
-      for (let i = 14; i >= 1; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
+      for (let i = daysSpan; i >= 0; i--) {
+        const date = subDays(r.to, i);
         const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         result.push({ date: label, dau: byDate[label]?.size ?? 0 });
       }
@@ -171,18 +182,20 @@ export function useDailyActiveUsers() {
   });
 }
 
-/** Fetch top drop-off pages from page_analytics aggregated over last 14 days. */
-export function useTopDropOffPages() {
-  return useQuery({
-    queryKey: ["dashboard-dropoff"],
-    queryFn: async (): Promise<DropOffPage[]> => {
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 15);
+/** Fetch top drop-off pages from page_analytics for the selected date range. */
+export function useTopDropOffPages(range?: DateRangeParam) {
+  const r = range ?? getDefaultRange();
+  const fromDate = format(startOfDay(r.from), "yyyy-MM-dd");
+  const toDate = format(endOfDay(r.to), "yyyy-MM-dd");
 
+  return useQuery({
+    queryKey: ["dashboard-dropoff", fromDate, toDate],
+    queryFn: async (): Promise<DropOffPage[]> => {
       const { data, error } = await supabase
         .from("page_analytics")
         .select("page_path, views, bounce_count")
-        .gte("date", fourteenDaysAgo.toISOString().split("T")[0]);
+        .gte("date", fromDate)
+        .lte("date", toDate);
       if (error) throw error;
 
       // Aggregate by page_path

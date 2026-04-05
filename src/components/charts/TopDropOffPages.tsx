@@ -1,16 +1,20 @@
 /**
  * TopDropOffPages — Ranked list of pages with the highest bounce rates.
- * Now powered by live database queries via useTopDropOffPages hook.
+ * Powered by live database queries via useTopDropOffPages hook.
  */
 
 import { ChevronRight } from "lucide-react";
-import { useTopDropOffPages } from "@/hooks/useDashboardData";
+import { useTopDropOffPages, type DateRangeParam } from "@/hooks/useDashboardData";
 import { TableSkeleton } from "@/components/feedback/CardSkeleton";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 import { CardEmptyState } from "@/components/feedback/CardEmptyState";
 
-export function TopDropOffPages() {
-  const { data: dropOffPages, isLoading, isError, refetch } = useTopDropOffPages();
+interface TopDropOffPagesProps {
+  range?: DateRangeParam;
+}
+
+export function TopDropOffPages({ range }: TopDropOffPagesProps) {
+  const { data: dropOffPages, isLoading, isError, refetch } = useTopDropOffPages(range);
 
   if (isLoading) return <TableSkeleton />;
   if (isError) return <CardErrorState title="Drop-off data failed" onRetry={() => refetch()} />;

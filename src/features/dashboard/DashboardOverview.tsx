@@ -9,17 +9,22 @@
  *
  * Data flow: KPI metrics from analytics_events, insights from insights table,
  * DAU from analytics_events, drop-off from page_analytics.
+ * All time-based queries respect the selected DateRangeFilter.
  */
 
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DailyActiveUsersChart } from "@/components/charts/DailyActiveUsersChart";
 import { TopDropOffPages } from "@/components/charts/TopDropOffPages";
 import { InsightCardSkeleton, KPICardSkeleton } from "@/components/feedback/CardSkeleton";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 import { CardEmptyState } from "@/components/feedback/CardEmptyState";
+import { DateRangeFilter } from "@/components/filters/DateRangeFilter";
 import { MetricCard } from "./components/MetricCard";
-import { useDashboardMetrics } from "@/hooks/useDashboardData";
+import { useDashboardMetrics, type DateRangeParam } from "@/hooks/useDashboardData";
 import { useInsights } from "@/hooks/useInsights";
 import {
   TrendingDown, ArrowRight, AlertTriangle, Zap, Lightbulb,
@@ -29,7 +34,18 @@ import { formatDistanceToNow } from "date-fns";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
-  const { data: dashboardMetrics, isLoading: loading, isError: metricsError, refetch: retryMetrics } = useDashboardMetrics();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 14),
+    to: new Date(),
+  });
+
+  // Convert DateRange (react-day-picker) to DateRangeParam for hooks
+  const hookRange: DateRangeParam | undefined =
+    dateRange?.from && dateRange?.to
+      ? { from: dateRange.from, to: dateRange.to }
+      : undefined;
+
+  const { data: dashboardMetrics, isLoading: loading, isError: metricsError, refetch: retryMetrics } = useDashboardMetrics(hookRange);
   const { data: insights, isLoading: insightsLoading, isError: insightsError, refetch: retryInsights } = useInsights();
 
   const primaryInsight = insights?.find((i) => i.severity === "critical");
@@ -38,7 +54,10 @@ const DashboardOverview = () => {
   /* ---------- Loading skeleton ---------- */
   if (loading || insightsLoading) {
     return (
-      <DashboardLayout title="Home">
+      <DashboardLayout
+        title="Home"
+        headerContent={<DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <KPICardSkeleton />
           <KPICardSkeleton />
@@ -67,7 +86,10 @@ const DashboardOverview = () => {
   };
 
   return (
-    <DashboardLayout title="Home">
+    <DashboardLayout
+      title="Home"
+      headerContent={<DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />}
+    >
       {/* KPI Metric Bar */}
       {metricsError ? (
         <CardErrorState title="Metrics unavailable" message="Could not load dashboard metrics." onRetry={() => retryMetrics()} />
@@ -159,8 +181,8 @@ const DashboardOverview = () => {
 
       {/* Charts + Table */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <DailyActiveUsersChart />
-        <TopDropOffPages />
+        <DailyActiveUsersChart range={hookRange} />
+        <TopDropOffPages range={hookRange} />
       </div>
     </DashboardLayout>
   );
