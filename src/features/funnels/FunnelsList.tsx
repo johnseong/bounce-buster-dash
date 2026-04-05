@@ -65,7 +65,7 @@ export default function FunnelsList() {
             <div
               key={funnel.id}
               className="asana-card p-6 cursor-pointer hover:border-primary/30 transition-colors group"
-              onClick={() => navigate("/funnels/detail")}
+              onClick={() => navigate(`/funnels/detail?id=${funnel.id}`)}
             >
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
