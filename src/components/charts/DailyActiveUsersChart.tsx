@@ -1,16 +1,20 @@
 /**
- * DailyActiveUsersChart — Area chart showing DAU over the last 14 days.
- * Now powered by live database queries via useDailyActiveUsers hook.
+ * DailyActiveUsersChart — Area chart showing DAU over the selected date range.
+ * Powered by live database queries via useDailyActiveUsers hook.
  */
 
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
-import { useDailyActiveUsers } from "@/hooks/useDashboardData";
+import { useDailyActiveUsers, type DateRangeParam } from "@/hooks/useDashboardData";
 import { ChartSkeleton } from "@/components/feedback/CardSkeleton";
 import { CardErrorState } from "@/components/feedback/CardErrorState";
 import { CardEmptyState } from "@/components/feedback/CardEmptyState";
 
-export function DailyActiveUsersChart() {
-  const { data, isLoading, isError, refetch } = useDailyActiveUsers();
+interface DailyActiveUsersChartProps {
+  range?: DateRangeParam;
+}
+
+export function DailyActiveUsersChart({ range }: DailyActiveUsersChartProps) {
+  const { data, isLoading, isError, refetch } = useDailyActiveUsers(range);
 
   if (isLoading) return <ChartSkeleton />;
   if (isError) return <CardErrorState title="DAU chart failed" onRetry={() => refetch()} />;
@@ -23,7 +27,7 @@ export function DailyActiveUsersChart() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Daily Active Users</h2>
-          <p className="text-[12px] text-muted-foreground mt-0.5">Last 14 days</p>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Selected period</p>
         </div>
         <span className="text-[22px] font-bold text-foreground tracking-tight">{latestDAU.toLocaleString()}</span>
       </div>
