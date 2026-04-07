@@ -3,14 +3,16 @@
  */
 
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ShieldAlert } from "lucide-react";
 
 export default function AuthPage() {
+  const location = useLocation();
+  const redirectedFrom = (location.state as { from?: string })?.from;
   const { user, loading, signIn, signUp, signInWithGoogle } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");

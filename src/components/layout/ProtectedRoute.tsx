@@ -2,12 +2,13 @@
  * ProtectedRoute — Redirects unauthenticated users to /auth.
  */
 
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { BarChart3 } from "lucide-react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -19,7 +20,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
 
   return <>{children}</>;
 }
