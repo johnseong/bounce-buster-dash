@@ -57,6 +57,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-6">
+        {/* Login required banner */}
+        {redirectedFrom && (
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3">
+            <ShieldAlert className="h-4 w-4 text-muted-foreground shrink-0" />
+            <p className="text-[13px] text-muted-foreground">Please sign in to access the dashboard.</p>
+          </div>
+        )}
+
         {/* Brand */}
         <div className="flex flex-col items-center gap-3">
           <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
