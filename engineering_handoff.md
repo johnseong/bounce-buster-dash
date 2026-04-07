@@ -165,6 +165,27 @@ Real user events will be ingested via an API endpoint, stored in the same table 
 - **Demo-friendly read policies** added to: `analytics_events`, `page_analytics`, `insights`, `funnel_events`, `saved_funnels`, `saved_reports`, `scheduled_reports`, `user_segments` — allows any authenticated user to read seeded data
 - Security definer functions (`owns_funnel`, `owns_insight`) prevent RLS recursion on cross-table lookups
 
+### Route Protection
+
+All dashboard routes are wrapped in `ProtectedRoute`, which enforces authentication before any feature interaction:
+
+| Protected route | Feature |
+|----------------|---------|
+| `/` | Dashboard Overview |
+| `/drop-off` | Drop-off Analysis |
+| `/funnels` | Funnels List |
+| `/funnels/detail` | Funnel Detail |
+| `/pages` | Pages |
+| `/reports` | Reports |
+| `/segments` | User Segments |
+| `/settings` | Settings |
+
+- Unauthenticated users are redirected to `/auth` automatically
+- The intended destination is preserved in router state (`location.state.from`) for potential post-login redirect
+- A loading spinner is shown during auth initialization to prevent flash of redirect
+- The `/auth` page displays a `ShieldAlert` banner ("Please sign in to access the dashboard") when redirected from a protected route
+- Key files: `ProtectedRoute.tsx`, `AuthPage.tsx`
+
 ---
 
 ## 7. Date Range Filtering
